@@ -1,938 +1,2094 @@
 <!DOCTYPE html>
-<html lang="pt" data-theme="light">
+<html lang="pt">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Planta de Sala de Aula</title>
-<link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700&display=swap" rel="stylesheet">
+<title>Planta de Sala — Organização de Alunos</title>
 <style>
-/* ═══ DESIGN TOKENS ═══ */
-:root, [data-theme="light"] {
-  --color-bg:#f7f6f2; --color-surface:#f9f8f5; --color-surface-2:#fbfbf9;
-  --color-surface-offset:#f3f0ec; --color-surface-dynamic:#e6e4df;
-  --color-divider:#dcd9d5; --color-border:#d4d1ca;
-  --color-text:#28251d; --color-text-muted:#7a7974; --color-text-faint:#bab9b4;
-  --color-text-inverse:#f9f8f4;
-  --color-primary:#01696f; --color-primary-hover:#0c4e54; --color-primary-active:#0f3638;
-  --color-primary-highlight:#cedcd8;
-  --color-error:#a12c7b; --color-success:#437a22; --color-warning:#964219;
-  --radius-sm:0.375rem; --radius-md:0.5rem; --radius-lg:0.75rem; --radius-xl:1rem; --radius-full:9999px;
-  --shadow-sm:0 1px 3px oklch(0.2 0.01 80/0.07); --shadow-md:0 4px 14px oklch(0.2 0.01 80/0.09); --shadow-lg:0 12px 36px oklch(0.2 0.01 80/0.14);
-  --text-xs:clamp(0.75rem,0.7rem + 0.25vw,0.875rem);
-  --text-sm:clamp(0.875rem,0.8rem + 0.35vw,1rem);
-  --text-base:clamp(1rem,0.95rem + 0.25vw,1.125rem);
-  --text-lg:clamp(1.125rem,1rem + 0.75vw,1.5rem);
-  --s1:0.25rem;--s2:0.5rem;--s3:0.75rem;--s4:1rem;--s5:1.25rem;--s6:1.5rem;--s8:2rem;--s10:2.5rem;--s12:3rem;
-  --tr:180ms cubic-bezier(0.16,1,0.3,1);
-  --font:'Satoshi','Helvetica Neue',sans-serif;
-  --g1:#01696f;--g1b:#d4eeec;--g1t:#0f3638;
-  --g2:#964219;--g2b:#f0ddd2;--g2t:#4b2614;
-  --g3:#006494;--g3b:#cce0ed;--g3t:#0b3751;
-  --g4:#7a39bb;--g4b:#e3d6f5;--g4t:#431673;
-  --g5:#437a22;--g5b:#d5e8cc;--g5t:#1e3f0a;
-  --g6:#da7101;--g6b:#f5e3c8;--g6t:#ac3e00;
-  --g7:#a12c7b;--g7b:#f0d5e9;--g7t:#561740;
-  --g8:#d19900;--g8b:#f5edcc;--g8t:#8a5b00;
+:root {
+  --bg: #f5f0eb;
+  --sidebar-bg: #2c2c2c;
+  --sidebar-text: #e8e4df;
+  --accent: #d4825a;
+  --accent-hover: #c0714d;
+  --accent-light: #f0d8c8;
+  --desk-bg: #ffffff;
+  --desk-border: #d0cbc4;
+  --desk-shadow: rgba(0,0,0,0.08);
+  --teacher-bg: #3a3a3a;
+  --teacher-text: #f5f0eb;
+  --grid-line: #e0dbd4;
+  --text-primary: #2c2c2c;
+  --text-secondary: #7a756e;
+  --danger: #c0504d;
+  --danger-hover: #a8403d;
+  --success: #5a8a5e;
+  --radius: 10px;
+  --radius-sm: 6px;
 }
-[data-theme="dark"] {
-  --color-bg:#171614;--color-surface:#1c1b19;--color-surface-2:#201f1d;
-  --color-surface-offset:#1d1c1a;--color-surface-dynamic:#2d2c2a;
-  --color-divider:#262523;--color-border:#393836;
-  --color-text:#cdccca;--color-text-muted:#797876;--color-text-faint:#5a5957;
-  --color-text-inverse:#2b2a28;
-  --color-primary:#4f98a3;--color-primary-hover:#227f8b;--color-primary-active:#1a626b;
-  --color-primary-highlight:#313b3b;
-  --color-error:#d163a7;--color-success:#6daa45;--color-warning:#bb653b;
-  --shadow-sm:0 1px 3px oklch(0 0 0/0.22);--shadow-md:0 4px 14px oklch(0 0 0/0.32);--shadow-lg:0 12px 36px oklch(0 0 0/0.44);
-  --g1b:#1d3535;--g2b:#3a2010;--g3b:#102030;--g4b:#2a1a45;
-  --g5b:#1a2f0d;--g6b:#3a2000;--g7b:#3a0d28;--g8b:#3a2f00;
-  --g1t:#7dcfca;--g2t:#e8945a;--g3t:#7ab8d6;--g4t:#c198f0;
-  --g5t:#8ec95a;--g6t:#fcbf6a;--g7t:#e07ab8;--g8t:#f0c84a;
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', 'Helvetica Neue', system-ui, sans-serif;
+  background: var(--bg);
+  color: var(--text-primary);
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
 }
-@media(prefers-color-scheme:dark){:root:not([data-theme]){
-  --color-bg:#171614;--color-surface:#1c1b19;--color-surface-2:#201f1d;
-  --color-surface-offset:#1d1c1a;--color-divider:#262523;--color-border:#393836;
-  --color-text:#cdccca;--color-text-muted:#797876;--color-text-faint:#5a5957;
-  --color-text-inverse:#2b2a28;--color-primary:#4f98a3;--color-primary-hover:#227f8b;
-  --color-primary-highlight:#313b3b;
-}}
 
-/* ═══ BASE ═══ */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;height:100%;overflow:hidden;}
-body{font-family:var(--font);font-size:var(--text-sm);color:var(--color-text);background:var(--color-bg);height:100dvh;overflow:hidden;display:flex;flex-direction:column;}
-button{cursor:pointer;background:none;border:none;font-family:inherit;color:inherit;}
-input,select,textarea{font-family:inherit;color:inherit;}
-:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px;border-radius:var(--radius-sm);}
-@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;}}
-::-webkit-scrollbar{width:5px;height:5px;}
-::-webkit-scrollbar-thumb{background:var(--color-border);border-radius:3px;}
-::-webkit-scrollbar-track{background:transparent;}
-
-/* ═══ LAYOUT ═══ */
-.app{display:grid;grid-template-columns:270px 1fr;grid-template-rows:50px 1fr;height:100dvh;}
-
-/* HEADER */
-.header{grid-column:1/-1;display:flex;align-items:center;gap:var(--s3);padding:0 var(--s4);background:var(--color-surface);border-bottom:1px solid var(--color-border);z-index:20;}
-.logo{display:flex;align-items:center;gap:var(--s2);font-size:var(--text-base);font-weight:700;color:var(--color-primary);flex-shrink:0;margin-right:var(--s2);}
-.turma-btn{font-weight:600;font-size:var(--text-base);padding:var(--s1) var(--s2);border-radius:var(--radius-sm);transition:background var(--tr);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-.turma-btn:hover{background:var(--color-surface-offset);}
-.header-actions{display:flex;align-items:center;gap:var(--s2);margin-left:auto;}
-
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;gap:var(--s1);padding:5px var(--s3);border-radius:var(--radius-md);font-size:var(--text-sm);font-weight:500;transition:background var(--tr),color var(--tr),box-shadow var(--tr);white-space:nowrap;line-height:1.4;}
-.btn-primary{background:var(--color-primary);color:var(--color-text-inverse);}
-.btn-primary:hover{background:var(--color-primary-hover);box-shadow:var(--shadow-sm);}
-.btn-ghost{color:var(--color-text-muted);border:1px solid transparent;}
-.btn-ghost:hover{background:var(--color-surface-offset);border-color:var(--color-border);color:var(--color-text);}
-.btn-sm{padding:3px var(--s2);font-size:var(--text-xs);}
-.btn-icon{padding:0;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;border-radius:var(--radius-md);}
-.btn-icon:hover{background:var(--color-surface-offset);}
-.btn-danger{color:var(--color-error);}
-.btn-danger:hover{background:oklch(from var(--color-error) l c h/0.1);}
-
-/* SIDEBAR */
-.sidebar{background:var(--color-surface);border-right:1px solid var(--color-border);overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;}
-.sb-section{padding:var(--s4);border-bottom:1px solid var(--color-divider);}
-.sb-section:last-child{border-bottom:none;flex:1;}
-.sb-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s3);}
-.sb-title{font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--color-text-muted);}
-
-/* TURMAS */
-.turma-row{display:flex;align-items:center;gap:var(--s2);padding:6px var(--s3);border-radius:var(--radius-md);cursor:pointer;font-size:var(--text-sm);transition:background var(--tr);position:relative;}
-.turma-row:hover{background:var(--color-surface-offset);}
-.turma-row.active{background:var(--color-primary-highlight);font-weight:600;}
-.turma-row.active .turma-row-name{color:var(--color-primary);}
-.turma-count{margin-left:auto;font-size:var(--text-xs);color:var(--color-text-faint);background:var(--color-surface-dynamic);padding:1px 6px;border-radius:var(--radius-full);}
-.turma-del{display:none;color:var(--color-error);padding:2px 5px;border-radius:var(--radius-sm);font-size:12px;}
-.turma-row:hover .turma-del{display:flex;}
-.turma-del:hover{background:oklch(from var(--color-error) l c h/0.1);}
-
-/* STUDENTS */
-.student-pool{display:flex;flex-direction:column;gap:4px;max-height:190px;overflow-y:auto;}
-.chip{display:flex;align-items:center;gap:var(--s2);padding:5px var(--s2);border-radius:var(--radius-md);font-size:var(--text-sm);cursor:grab;background:var(--color-surface-2);border:1px solid var(--color-border);transition:background var(--tr),box-shadow var(--tr);user-select:none;}
-.chip:hover{background:var(--color-surface-offset);box-shadow:var(--shadow-sm);}
-.chip.dragging{opacity:.4;}
-.chip.seated{opacity:.45;font-style:italic;}
-.gdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-.chip-del{display:none;margin-left:auto;color:var(--color-text-faint);padding:1px 4px;border-radius:var(--radius-sm);font-size:12px;}
-.chip:hover .chip-del{display:flex;}
-.chip-del:hover{color:var(--color-error);background:oklch(from var(--color-error) l c h/0.1);}
-.pool-empty{font-size:var(--text-xs);color:var(--color-text-faint);text-align:center;padding:var(--s3);}
-
-/* GROUPS */
-.groups-list{display:flex;flex-direction:column;gap:var(--s2);}
-.group-row{display:flex;align-items:center;gap:var(--s2);padding:6px var(--s3);border-radius:var(--radius-md);cursor:pointer;font-size:var(--text-sm);transition:filter var(--tr);}
-.group-row:hover{filter:brightness(.97);}
-.gswatch{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
-.gname-input{background:none;border:none;font-size:var(--text-sm);font-weight:600;flex:1;cursor:pointer;}
-.gname-input:focus{outline:none;}
-.gcount{font-size:var(--text-xs);opacity:.7;margin-left:auto;}
-.group-del{display:none;padding:1px 5px;border-radius:var(--radius-sm);font-size:12px;}
-.group-row:hover .group-del{display:flex;}
-.group-del:hover{color:var(--color-error);background:oklch(from var(--color-error) l c h/0.1);}
-
-/* MAIN */
-.main{overflow:auto;overscroll-behavior:contain;background:var(--color-bg);}
-
-/* TOOLBAR */
-.toolbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;flex-wrap:wrap;gap:var(--s2);padding:6px var(--s4);background:var(--color-bg);border-bottom:1px solid var(--color-divider);}
-.tb-group{display:flex;align-items:center;gap:var(--s1);}
-.tb-div{width:1px;height:18px;background:var(--color-divider);margin:0 var(--s1);}
-.grid-ctrl{display:flex;align-items:center;gap:4px;font-size:var(--text-xs);color:var(--color-text-muted);}
-.grid-ctrl label{font-weight:600;}
-.grid-inp{width:38px;text-align:center;padding:2px 4px;border-radius:var(--radius-sm);border:1px solid var(--color-border);background:var(--color-surface);font-size:var(--text-xs);}
-.grid-adj{width:20px;height:20px;font-size:13px;display:inline-flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);color:var(--color-text-muted);}
-.grid-adj:hover{background:var(--color-surface-offset);color:var(--color-text);}
-.mode-pill{display:flex;border-radius:var(--radius-full);background:var(--color-surface-offset);padding:2px;gap:1px;}
-.mode-btn{padding:3px 10px;border-radius:var(--radius-full);font-size:var(--text-xs);font-weight:500;color:var(--color-text-muted);transition:all var(--tr);}
-.mode-btn.active{background:var(--color-surface-2);color:var(--color-text);box-shadow:var(--shadow-sm);}
-.tb-hint{font-size:var(--text-xs);color:var(--color-text-faint);font-style:italic;}
-
-/* CLASSROOM */
-.classroom-wrap{padding:var(--s8);min-height:calc(100% - 45px);display:flex;flex-direction:column;align-items:center;}
-.teacher-zone{display:flex;flex-direction:column;align-items:center;gap:var(--s2);margin-bottom:var(--s8);width:100%;}
-.board-row{display:flex;align-items:center;gap:var(--s3);width:100%;max-width:500px;justify-content:center;}
-.board-line{height:2px;background:var(--color-divider);flex:1;max-width:120px;}
-.board-label{font-size:var(--text-xs);color:var(--color-text-faint);font-weight:500;}
-.teacher-desk{width:190px;height:54px;background:var(--color-primary);border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;gap:var(--s2);color:var(--color-text-inverse);font-weight:700;font-size:var(--text-sm);box-shadow:var(--shadow-md);position:relative;}
-.teacher-desk::after{content:'';position:absolute;bottom:-11px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-top:11px solid var(--color-primary);}
-.down-label{font-size:var(--text-xs);color:var(--color-text-faint);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:var(--s2);}
-.student-grid{display:grid;gap:var(--s3);width:100%;max-width:950px;justify-content:center;}
-
-/* DESK */
-.desk{width:100px;min-height:74px;border-radius:var(--radius-lg);border:2px dashed var(--color-border);background:var(--color-surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:var(--s2) var(--s2) var(--s2);position:relative;transition:all var(--tr);cursor:default;}
-.desk.occupied{border-style:solid;border-color:var(--color-border);}
-.desk.occupied:hover{box-shadow:var(--shadow-sm);}
-.desk.drop-over{border-color:var(--color-primary);background:var(--color-primary-highlight);}
-.desk.selected{border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-primary-highlight);}
-.desk.dim{opacity:.28;}
-.desk-num{position:absolute;top:3px;left:6px;font-size:10px;color:var(--color-text-faint);font-variant-numeric:tabular-nums;}
-.desk-clear{position:absolute;top:2px;right:4px;font-size:13px;line-height:1;color:var(--color-text-faint);display:none;padding:2px 3px;border-radius:var(--radius-sm);transition:color var(--tr);}
-.desk:hover .desk-clear{display:flex;}
-.desk-clear:hover{color:var(--color-error);background:oklch(from var(--color-error) l c h/0.12);}
-.desk-name{font-size:var(--text-xs);font-weight:600;text-align:center;line-height:1.3;word-break:break-word;color:var(--color-text);}
-.desk-badge{font-size:10px;font-weight:700;padding:1px 7px;border-radius:var(--radius-full);margin-top:2px;white-space:nowrap;max-width:92px;overflow:hidden;text-overflow:ellipsis;}
-.desk-empty{font-size:10px;color:var(--color-text-faint);text-align:center;}
-.desk-name-inp{width:88px;font-size:var(--text-xs);text-align:center;border:1px solid var(--color-primary);border-radius:var(--radius-sm);padding:1px 4px;background:var(--color-surface);font-family:inherit;}
-
-/* EMPTY STATE */
-.empty-state{text-align:center;padding:var(--s12);color:var(--color-text-muted);}
-.empty-icon{font-size:42px;margin-bottom:var(--s4);}
-.empty-state h3{font-size:var(--text-base);font-weight:700;margin-bottom:var(--s2);color:var(--color-text);}
-.empty-state p{font-size:var(--text-sm);max-width:36ch;margin:0 auto var(--s4);}
-
-/* MODALS */
-.overlay{position:fixed;inset:0;z-index:100;background:oklch(.1 .01 80/.55);display:flex;align-items:center;justify-content:center;padding:var(--s4);opacity:0;pointer-events:none;transition:opacity var(--tr);}
-.overlay.open{opacity:1;pointer-events:all;}
-.modal{background:var(--color-surface-2);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);width:100%;max-width:480px;max-height:82vh;overflow-y:auto;padding:var(--s6);transform:translateY(6px);transition:transform var(--tr);}
-.overlay.open .modal{transform:translateY(0);}
-.modal-title{font-size:var(--text-base);font-weight:700;margin-bottom:var(--s4);display:flex;align-items:center;justify-content:space-between;}
-.modal-close{color:var(--color-text-muted);font-size:18px;line-height:1;padding:var(--s1);border-radius:var(--radius-sm);}
-.modal-close:hover{background:var(--color-surface-offset);color:var(--color-text);}
-.field{margin-bottom:var(--s4);}
-.field label{display:block;font-size:var(--text-xs);font-weight:700;margin-bottom:var(--s2);color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.05em;}
-.field input,.field textarea{width:100%;padding:var(--s2) var(--s3);border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);font-size:var(--text-sm);transition:border-color var(--tr);}
-.field input:focus,.field textarea:focus{outline:none;border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-primary-highlight);}
-.field textarea{resize:vertical;min-height:130px;font-family:inherit;}
-.field-hint{font-size:var(--text-xs);color:var(--color-text-faint);margin-top:var(--s1);}
-.modal-foot{display:flex;justify-content:flex-end;gap:var(--s2);margin-top:var(--s4);}
-
-/* POPOVER (assign / group select) */
-.popover{position:fixed;z-index:200;background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);padding:var(--s2);min-width:200px;max-width:260px;display:none;flex-direction:column;gap:3px;}
-.popover.open{display:flex;}
-.popover-title{font-size:var(--text-xs);font-weight:700;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.05em;padding:4px var(--s2) var(--s2);}
-.pop-search{width:100%;padding:5px var(--s2);border:1px solid var(--color-border);border-radius:var(--radius-md);font-size:var(--text-xs);background:var(--color-surface);margin-bottom:4px;}
-.pop-list{overflow-y:auto;max-height:240px;display:flex;flex-direction:column;gap:2px;}
-.pop-item{display:flex;align-items:center;gap:var(--s2);padding:6px var(--s2);border-radius:var(--radius-sm);cursor:pointer;font-size:var(--text-sm);transition:background var(--tr);}
-.pop-item:hover{background:var(--color-surface-offset);}
-.pop-item.seated{color:var(--color-text-faint);}
-.pop-div{height:1px;background:var(--color-divider);margin:3px 0;}
-
-/* CTX MENU */
-.ctx{position:fixed;z-index:210;background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);padding:var(--s1);min-width:175px;display:none;}
-.ctx.open{display:block;}
-.ctx-item{display:flex;align-items:center;gap:var(--s2);padding:7px var(--s3);border-radius:var(--radius-md);font-size:var(--text-sm);cursor:pointer;transition:background var(--tr);}
-.ctx-item:hover{background:var(--color-surface-offset);}
-.ctx-item.danger{color:var(--color-error);}
-.ctx-item.danger:hover{background:oklch(from var(--color-error) l c h/.08);}
-.ctx-div{height:1px;background:var(--color-divider);margin:3px 0;}
-
-/* TOAST */
-.toasts{position:fixed;bottom:var(--s4);right:var(--s4);z-index:300;display:flex;flex-direction:column;gap:var(--s2);pointer-events:none;}
-.toast-msg{background:var(--color-text);color:var(--color-bg);padding:7px var(--s4);border-radius:var(--radius-md);font-size:var(--text-sm);font-weight:500;box-shadow:var(--shadow-md);animation:toastIn .18s ease;}
-@keyframes toastIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
-
-/* PRINT */
-@media print{
-  .header,.sidebar,.toolbar,.toasts,.overlay,.ctx,.popover{display:none!important;}
-  .app{display:block!important;height:auto!important;}
-  .main{overflow:visible!important;}
-  .classroom-wrap{padding:12px!important;}
-  .desk-clear{display:none!important;}
-  .desk{border-style:solid!important;border-color:#ccc!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  .teacher-desk{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  .desk-badge{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  .print-legend{display:block!important;}
-  .student-grid{gap:8px!important;}
-  .print-header{display:block!important;}
+/* ========== SIDEBAR ========== */
+.sidebar {
+  width: 300px;
+  min-width: 300px;
+  background: var(--sidebar-bg);
+  color: var(--sidebar-text);
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+  z-index: 10;
 }
-.print-header{display:none;font-size:13px;font-weight:700;margin-bottom:12px;text-align:center;letter-spacing:.05em;}
-.print-legend{display:none;margin-top:20px;}
-.print-legend-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#555;margin-bottom:6px;}
-.print-legend-items{display:flex;flex-wrap:wrap;gap:8px;}
-.print-legend-item{display:flex;align-items:center;gap:4px;font-size:11px;}
-.print-swatch{width:12px;height:12px;border-radius:3px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+
+.sidebar-header {
+  padding: 20px 20px 16px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-header h1 {
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  margin-bottom: 2px;
+}
+
+.sidebar-header p {
+  font-size: 11px;
+  color: rgba(255,255,255,0.4);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.sidebar-tabs {
+  display: flex;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+}
+
+.sidebar-tab {
+  flex: 1;
+  padding: 10px 8px;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  transition: all 0.2s;
+  border-bottom: 2px solid transparent;
+}
+
+.sidebar-tab:hover { color: rgba(255,255,255,0.7); }
+.sidebar-tab.active {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.15) transparent;
+}
+
+.sidebar-content::-webkit-scrollbar { width: 5px; }
+.sidebar-content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 3px; }
+
+.panel { display: none; padding: 16px 20px; }
+.panel.active { display: block; }
+
+/* Form elements */
+.form-group { margin-bottom: 14px; }
+.form-label {
+  display: block;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: rgba(255,255,255,0.45);
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.form-input, .form-select {
+  width: 100%;
+  padding: 9px 12px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-sm);
+  color: var(--sidebar-text);
+  font-size: 13px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus, .form-select:focus {
+  outline: none;
+  border-color: var(--accent);
+}
+
+.form-select option { background: var(--sidebar-bg); color: var(--sidebar-text); }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 9px 14px;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 12px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.btn-primary {
+  background: var(--accent);
+  color: white;
+  width: 100%;
+}
+.btn-primary:hover { background: var(--accent-hover); }
+
+.btn-secondary {
+  background: rgba(255,255,255,0.08);
+  color: var(--sidebar-text);
+  width: 100%;
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.14); }
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+}
+.btn-danger:hover { background: var(--danger-hover); }
+
+.btn-sm {
+  padding: 5px 10px;
+  font-size: 11px;
+}
+
+.btn-icon {
+  width: 28px; height: 28px;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius-sm);
+  background: rgba(255,255,255,0.06);
+  border: none;
+  color: rgba(255,255,255,0.5);
+  cursor: pointer;
+  transition: all 0.15s;
+  font-size: 14px;
+}
+.btn-icon:hover { background: rgba(255,255,255,0.12); color: white; }
+.btn-icon.danger:hover { background: var(--danger); color: white; }
+
+/* Student list */
+.student-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.04);
+  border-radius: var(--radius-sm);
+  margin-bottom: 4px;
+  cursor: grab;
+  transition: all 0.15s;
+  border: 1px solid transparent;
+}
+
+.student-item:hover { background: rgba(255,255,255,0.08); }
+.student-item.dragging { opacity: 0.5; }
+.student-item.seated { border-left: 3px solid var(--success); }
+.student-item.unseated { border-left: 3px solid var(--accent); }
+
+.student-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.student-name {
+  flex: 1;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.student-seat-info {
+  font-size: 10px;
+  color: rgba(255,255,255,0.35);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.student-actions {
+  display: flex;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.student-item:hover .student-actions { opacity: 1; }
+
+.add-row {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+
+.add-row .form-input { flex: 1; }
+.add-row .btn { width: auto; flex-shrink: 0; }
+
+/* Counters */
+.counter-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.04);
+  border-radius: var(--radius-sm);
+}
+
+.counter {
+  font-size: 11px;
+  color: rgba(255,255,255,0.5);
+}
+.counter strong {
+  color: var(--accent);
+  font-size: 16px;
+  display: block;
+  margin-bottom: 1px;
+}
+
+/* Groups */
+.group-item {
+  padding: 10px 12px;
+  background: rgba(255,255,255,0.04);
+  border-radius: var(--radius-sm);
+  margin-bottom: 6px;
+  border-left: 4px solid;
+}
+
+.group-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.group-name {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.group-member-tag {
+  display: inline-block;
+  padding: 2px 8px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 10px;
+  margin: 2px 2px;
+  font-size: 11px;
+}
+
+/* Layout templates */
+.layout-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.layout-option {
+  padding: 12px 10px;
+  background: rgba(255,255,255,0.05);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.2s;
+}
+
+.layout-option:hover {
+  background: rgba(255,255,255,0.1);
+  border-color: var(--accent);
+}
+
+.layout-option.active {
+  border-color: var(--accent);
+  background: rgba(212,130,90,0.15);
+}
+
+.layout-icon { font-size: 24px; margin-bottom: 4px; display: block; }
+.layout-label { font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* Section divider */
+.section-title {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: rgba(255,255,255,0.3);
+  margin: 18px 0 10px;
+  font-weight: 700;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+
+/* ========== MAIN AREA ========== */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  background: white;
+  border-bottom: 1px solid var(--grid-line);
+  gap: 10px;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+}
+
+.toolbar-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolbar .btn {
+  background: var(--bg);
+  color: var(--text-primary);
+  border: 1px solid var(--desk-border);
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+
+.toolbar .btn:hover {
+  background: var(--accent-light);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.room-name-input {
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  font-family: inherit;
+  outline: none;
+  width: 200px;
+}
+
+.room-name-input::placeholder { color: var(--text-secondary); }
+
+.zoom-controls { display: flex; align-items: center; gap: 4px; }
+
+.zoom-btn {
+  width: 30px; height: 30px;
+  border: 1px solid var(--desk-border);
+  background: white;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-secondary);
+  transition: all 0.15s;
+}
+.zoom-btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.zoom-level {
+  font-size: 11px;
+  color: var(--text-secondary);
+  min-width: 36px;
+  text-align: center;
+  font-weight: 600;
+}
+
+/* Classroom */
+.classroom-wrapper {
+  flex: 1;
+  overflow: auto;
+  padding: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+}
+
+.classroom {
+  position: relative;
+  background: white;
+  border: 2px solid var(--grid-line);
+  border-radius: var(--radius);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+  transform-origin: top center;
+  overflow: visible;
+}
+
+.classroom-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px);
+  background-size: 30px 30px;
+  pointer-events: none;
+  border-radius: var(--radius);
+}
+
+/* Teacher desk */
+.teacher-desk {
+  position: absolute;
+  left: 50%;
+  top: 20px;
+  transform: translateX(-50%);
+  width: 200px;
+  height: 50px;
+  background: var(--teacher-bg);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--teacher-text);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  z-index: 5;
+  box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+}
+
+/* Student desk */
+.desk {
+  position: absolute;
+  height: 60px;
+  background: var(--desk-bg);
+  border: 2px solid var(--desk-border);
+  border-radius: var(--radius-sm);
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: box-shadow 0.15s, border-color 0.15s;
+  z-index: 2;
+  user-select: none;
+}
+
+.desk.single { width: 100px; }
+.desk.pair { width: 160px; }
+
+.desk:hover {
+  border-color: var(--accent);
+  box-shadow: 0 4px 14px var(--desk-shadow);
+  z-index: 3;
+}
+
+.desk.dragging-desk {
+  opacity: 0.7;
+  cursor: grabbing;
+  z-index: 100;
+  box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.desk.drag-over {
+  border-color: var(--accent);
+  background: var(--accent-light);
+  box-shadow: 0 0 0 3px rgba(212,130,90,0.2);
+}
+
+.desk.has-students { border-color: var(--accent); }
+
+.desk-number {
+  font-size: 9px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  position: absolute;
+  top: 3px;
+  left: 6px;
+}
+
+/* Desk interior layout */
+.desk-content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  padding: 2px 4px;
+}
+
+/* Single desk content */
+.desk.single .desk-content {
+  flex-direction: column;
+}
+
+/* Pair desk — 2 seat slots side by side */
+.desk.pair .desk-content {
+  flex-direction: row;
+}
+
+.seat-slot {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  height: 100%;
+  position: relative;
+  border-radius: 4px;
+  transition: background 0.15s;
+}
+
+.desk.pair .seat-slot {
+  cursor: pointer;
+}
+
+.desk.pair .seat-slot:first-child {
+  border-right: 1px dashed var(--desk-border);
+}
+
+.desk.pair .seat-slot:hover {
+  background: rgba(212,130,90,0.08);
+}
+
+.desk.pair .seat-slot.drag-over-slot {
+  background: var(--accent-light);
+}
+
+.seat-student {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-primary);
+  text-align: center;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0 3px;
+  line-height: 1.2;
+}
+
+.seat-empty {
+  font-size: 18px;
+  color: var(--desk-border);
+}
+
+.seat-group-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  position: absolute;
+  bottom: 3px;
+  right: 5px;
+}
+
+.desk-remove {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  width: 18px;
+  height: 18px;
+  background: var(--danger);
+  color: white;
+  border: 2px solid white;
+  border-radius: 50%;
+  font-size: 10px;
+  cursor: pointer;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  z-index: 10;
+}
+
+.desk:hover .desk-remove { display: flex; }
+
+/* Context menu */
+.ctx-menu {
+  position: fixed;
+  background: var(--sidebar-bg);
+  border-radius: var(--radius-sm);
+  padding: 4px;
+  z-index: 500;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+  min-width: 170px;
+}
+
+.ctx-item {
+  display: block;
+  width: 100%;
+  padding: 7px 12px;
+  background: none;
+  border: none;
+  color: var(--sidebar-text);
+  font-size: 12px;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.1s;
+}
+.ctx-item:hover { background: rgba(255,255,255,0.1); }
+.ctx-item.danger { color: #e88; }
+.ctx-item.danger:hover { background: rgba(200,80,77,0.3); }
+
+/* Notifications */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: var(--sidebar-bg);
+  color: white;
+  padding: 12px 20px;
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+  z-index: 1000;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+  animation: slideIn 0.3s ease;
+  max-width: 300px;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 500;
+  display: none;
+  align-items: center;
+  justify-content: center;
+}
+.modal-overlay.visible { display: flex; }
+
+.modal {
+  background: white;
+  border-radius: var(--radius);
+  padding: 24px;
+  width: 400px;
+  max-width: 90vw;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.2);
+}
+
+.modal h3 {
+  font-size: 16px;
+  margin-bottom: 16px;
+  color: var(--text-primary);
+}
+
+.modal .form-label { color: var(--text-secondary); }
+.modal .form-input, .modal .form-select {
+  background: var(--bg);
+  color: var(--text-primary);
+  border-color: var(--desk-border);
+}
+.modal .form-input:focus, .modal .form-select:focus { border-color: var(--accent); }
+
+.modal-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 18px;
+  justify-content: flex-end;
+}
+
+.modal-actions .btn { width: auto; min-width: 80px; }
+.modal-actions .btn-secondary {
+  background: var(--bg);
+  color: var(--text-primary);
+  border: 1px solid var(--desk-border);
+}
+.modal-actions .btn-primary { background: var(--accent); color: white; }
+
+/* Assign list */
+.assign-list {
+  max-height: 250px;
+  overflow-y: auto;
+  margin-top: 8px;
+}
+
+.assign-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+.assign-option:hover { background: var(--bg); }
+.assign-option.selected { background: var(--accent-light); }
+
+/* Sidebar footer */
+.sidebar-footer {
+  padding: 12px 20px;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex;
+  gap: 6px;
+}
+.sidebar-footer .btn { flex: 1; font-size: 10px; padding: 7px 6px; }
+
+/* ========== PRINT ========== */
+@media print {
+  body { background: white; }
+  .sidebar, .toolbar { display: none !important; }
+  .main { width: 100%; }
+  .classroom-wrapper { padding: 0; overflow: visible; display: block; }
+  .classroom {
+    transform: none !important;
+    border: 2px solid #333;
+    box-shadow: none;
+    margin: 10mm auto;
+    page-break-inside: avoid;
+  }
+  .desk { border: 1.5px solid #555; }
+  .desk-remove { display: none !important; }
+  .desk.has-students { border-color: #333; }
+  .teacher-desk { background: #333; }
+  .toast, .ctx-menu { display: none; }
+  .print-header {
+    display: block !important;
+    text-align: center;
+    margin-bottom: 10px;
+    padding: 10px 0;
+    border-bottom: 2px solid #333;
+  }
+  .print-header h2 { font-size: 18px; margin-bottom: 4px; }
+  .print-header p { font-size: 12px; color: #666; }
+  .print-footer {
+    display: block !important;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid #ccc;
+    font-size: 11px;
+    color: #666;
+  }
+  .print-groups {
+    display: block !important;
+    margin-top: 15px;
+    page-break-inside: avoid;
+  }
+  .print-groups h4 { font-size: 13px; margin-bottom: 8px; }
+  .print-group-item {
+    display: inline-block;
+    padding: 3px 10px;
+    margin: 2px 4px;
+    border: 1px solid #999;
+    border-radius: 4px;
+    font-size: 11px;
+  }
+}
+
+.print-header, .print-footer, .print-groups { display: none; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: -300px;
+    z-index: 100;
+    transition: left 0.3s;
+  }
+  .sidebar.open { left: 0; }
+  .mobile-toggle {
+    display: flex !important;
+    position: fixed;
+    top: 10px; left: 10px;
+    z-index: 50;
+    width: 40px; height: 40px;
+    background: var(--sidebar-bg);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    cursor: pointer;
+  }
+}
+
+.mobile-toggle { display: none; }
+
+.bulk-paste {
+  width: 100%;
+  min-height: 80px;
+  padding: 9px 12px;
+  background: rgba(255,255,255,0.07);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: var(--radius-sm);
+  color: var(--sidebar-text);
+  font-size: 12px;
+  font-family: inherit;
+  resize: vertical;
+}
+.bulk-paste::placeholder { color: rgba(255,255,255,0.3); }
+.bulk-paste:focus { outline: none; border-color: var(--accent); }
+
+.drag-hint {
+  text-align: center;
+  padding: 16px;
+  color: rgba(255,255,255,0.25);
+  font-size: 11px;
+  font-style: italic;
+}
+
+/* Capacity indicator */
+.desk-capacity {
+  position: absolute;
+  bottom: 2px;
+  left: 6px;
+  font-size: 8px;
+  color: var(--text-secondary);
+  letter-spacing: 0.3px;
+}
 </style>
 </head>
 <body>
 
-<div class="app">
+<button class="mobile-toggle" onclick="document.querySelector('.sidebar').classList.toggle('open')">☰</button>
 
-  <!-- HEADER -->
-  <header class="header">
-    <div class="logo">
-      <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-label="PlantaSala">
-        <rect x="1" y="1" width="24" height="24" rx="5" fill="var(--color-primary)" opacity=".15"/>
-        <rect x="4" y="5" width="8" height="5" rx="1.5" fill="var(--color-primary)" opacity=".75"/>
-        <rect x="14" y="5" width="8" height="5" rx="1.5" fill="var(--color-primary)" opacity=".75"/>
-        <rect x="4" y="12" width="8" height="5" rx="1.5" fill="var(--color-primary)" opacity=".75"/>
-        <rect x="14" y="12" width="8" height="5" rx="1.5" fill="var(--color-primary)" opacity=".75"/>
-        <rect x="4" y="19" width="8" height="4" rx="1.5" fill="var(--color-primary)" opacity=".75"/>
-        <rect x="14" y="19" width="8" height="4" rx="1.5" fill="var(--color-primary)" opacity=".75"/>
-        <rect x="7" y="0" width="12" height="3.5" rx="1.75" fill="var(--color-primary)"/>
-      </svg>
-      PlantaSala
-    </div>
-    <button class="turma-btn" id="hdrTurmaName" onclick="openModal('modalRenameTurma')">—</button>
-    <div class="header-actions">
-      <button class="btn btn-ghost btn-sm" onclick="exportData()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-        Exportar
-      </button>
-      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('importFile').click()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><line x1="12" y1="3" x2="12" y2="15"/><polyline points="7 8 12 3 17 8"/></svg>
-        Importar
-      </button>
-      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
-      <button class="btn btn-ghost btn-sm" onclick="printPlan()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-        Imprimir
-      </button>
-      <button class="btn-icon" id="themeToggle" data-theme-toggle aria-label="Alternar tema">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-      </button>
-    </div>
-  </header>
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <h1>Planta de Sala</h1>
+    <p>Organização de Alunos</p>
+  </div>
 
-  <!-- SIDEBAR -->
-  <aside class="sidebar">
-    <div class="sb-section">
-      <div class="sb-header">
-        <span class="sb-title">Turmas</span>
-        <button class="btn btn-ghost btn-sm" onclick="openModal('modalNewTurma')">+ Nova</button>
-      </div>
-      <div id="turmasList"></div>
-    </div>
-    <div class="sb-section">
-      <div class="sb-header">
-        <span class="sb-title">Alunos</span>
-        <button class="btn btn-ghost btn-sm" onclick="openModal('modalAddStudents')">+ Adicionar</button>
-      </div>
-      <div class="student-pool" id="studentPool"></div>
-      <div class="pool-empty" id="poolEmpty" style="display:none">Todos os alunos estão sentados ✓</div>
-    </div>
-    <div class="sb-section">
-      <div class="sb-header">
-        <span class="sb-title">Grupos</span>
-        <button class="btn btn-ghost btn-sm" onclick="createGroup()">+ Grupo</button>
-      </div>
-      <div class="groups-list" id="groupsList"></div>
-    </div>
-  </aside>
+  <div class="sidebar-tabs">
+    <button class="sidebar-tab active" data-tab="alunos">Alunos</button>
+    <button class="sidebar-tab" data-tab="sala">Sala</button>
+    <button class="sidebar-tab" data-tab="grupos">Grupos</button>
+  </div>
 
-  <!-- MAIN -->
-  <main class="main">
-    <div class="toolbar">
-      <div class="tb-group">
-        <div class="grid-ctrl">
-          <label>Colunas</label>
-          <button class="grid-adj" onclick="adjustGrid('c',-1)">−</button>
-          <input class="grid-inp" type="number" id="gCols" value="4" min="1" max="12" onchange="applyGrid()">
-          <button class="grid-adj" onclick="adjustGrid('c',1)">+</button>
+  <div class="sidebar-content">
+    <!-- ALUNOS PANEL -->
+    <div class="panel active" id="panel-alunos">
+      <div class="counter-bar">
+        <div class="counter"><strong id="count-total">0</strong>Total</div>
+        <div class="counter"><strong id="count-seated">0</strong>Sentados</div>
+        <div class="counter"><strong id="count-unseated">0</strong>Por sentar</div>
+        <div class="counter"><strong id="count-capacity">0</strong>Lugares</div>
+      </div>
+
+      <div class="add-row">
+        <input type="text" class="form-input" id="new-student-name" placeholder="Nome do aluno"
+               onkeydown="if(event.key==='Enter')addStudent()">
+        <button class="btn btn-primary" onclick="addStudent()" style="width:auto; padding: 9px 14px;">+</button>
+      </div>
+
+      <details style="margin-bottom:14px;">
+        <summary style="cursor:pointer; font-size:11px; color:rgba(255,255,255,0.4); letter-spacing:0.8px; text-transform:uppercase; font-weight:600;">Adicionar vários</summary>
+        <div style="margin-top:8px;">
+          <textarea class="bulk-paste" id="bulk-students" placeholder="Um aluno por linha..."></textarea>
+          <button class="btn btn-secondary" onclick="addBulkStudents()" style="margin-top:6px;">Adicionar Lista</button>
         </div>
-        <div class="tb-div"></div>
-        <div class="grid-ctrl">
-          <label>Linhas</label>
-          <button class="grid-adj" onclick="adjustGrid('r',-1)">−</button>
-          <input class="grid-inp" type="number" id="gRows" value="5" min="1" max="15" onchange="applyGrid()">
-          <button class="grid-adj" onclick="adjustGrid('r',1)">+</button>
+      </details>
+
+      <div class="section-title">Lista de Alunos</div>
+      <div id="student-list"></div>
+      <div class="drag-hint" id="student-hint">Adicione alunos acima e arraste-os para as secretárias</div>
+    </div>
+
+    <!-- SALA PANEL -->
+    <div class="panel" id="panel-sala">
+      <div class="section-title">Dimensões da Sala</div>
+      <div style="display:flex; gap:8px; margin-bottom:14px;">
+        <div class="form-group" style="flex:1;margin-bottom:0;">
+          <label class="form-label">Largura (px)</label>
+          <input type="number" class="form-input" id="room-width" value="900" min="400" max="1600" onchange="updateRoomSize()">
+        </div>
+        <div class="form-group" style="flex:1;margin-bottom:0;">
+          <label class="form-label">Altura (px)</label>
+          <input type="number" class="form-input" id="room-height" value="650" min="400" max="1200" onchange="updateRoomSize()">
         </div>
       </div>
-      <div class="tb-div"></div>
-      <div class="mode-pill">
-        <button class="mode-btn active" id="modeEdit" onclick="setMode('edit')">✏️ Editar</button>
-        <button class="mode-btn" id="modeAssign" onclick="setMode('assign')">🎯 Atribuir</button>
-        <button class="mode-btn" id="modeGroup" onclick="setMode('group')">🎨 Grupos</button>
+
+      <div class="section-title">Tipo de Secretária</div>
+      <div class="form-group">
+        <select class="form-select" id="desk-type" onchange="updateDeskType()">
+          <option value="single">Individual — 1 aluno</option>
+          <option value="pair" selected>Par (dupla) — 2 alunos</option>
+        </select>
       </div>
-      <div class="tb-div"></div>
-      <button class="btn btn-ghost btn-sm" onclick="autoAssign()">🔀 Distribuir</button>
-      <button class="btn btn-ghost btn-sm" onclick="clearAll()">🗑 Limpar</button>
-      <span class="tb-hint" id="modeHint">Arraste alunos para as secretárias</span>
+
+      <div class="section-title">Disposições Rápidas</div>
+      <div class="layout-grid">
+        <div class="layout-option" onclick="applyLayout('rows')" data-layout="rows">
+          <span class="layout-icon">▦</span>
+          <span class="layout-label">Filas</span>
+        </div>
+        <div class="layout-option" onclick="applyLayout('pairs')" data-layout="pairs">
+          <span class="layout-icon">▣</span>
+          <span class="layout-label">Pares</span>
+        </div>
+        <div class="layout-option" onclick="applyLayout('ushape')" data-layout="ushape">
+          <span class="layout-icon">⊔</span>
+          <span class="layout-label">U</span>
+        </div>
+        <div class="layout-option" onclick="applyLayout('groups')" data-layout="groups">
+          <span class="layout-icon">⊞</span>
+          <span class="layout-label">Ilhas</span>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Nº de secretárias</label>
+        <div style="display:flex; gap:8px;">
+          <input type="number" class="form-input" id="desk-count" value="15" min="1" max="40">
+          <button class="btn btn-primary" onclick="regenerateDesks()" style="width:auto; white-space:nowrap;">Gerar</button>
+        </div>
+      </div>
+
+      <button class="btn btn-secondary" onclick="addSingleDesk()" style="margin-bottom:8px;">+ Adicionar 1 Secretária</button>
     </div>
-    <div class="classroom-wrap" id="classroomWrap"></div>
-  </main>
-</div>
 
-<!-- MODALS -->
-<div class="overlay" id="modalNewTurma" onclick="closeBg(event,'modalNewTurma')">
-  <div class="modal">
-    <div class="modal-title">Nova Turma <button class="modal-close" onclick="closeModal('modalNewTurma')">✕</button></div>
-    <div class="field"><label>Nome da turma</label><input type="text" id="inpNewTurma" placeholder="ex: 8ºA, Turma B…" onkeydown="if(event.key==='Enter')doNewTurma()"></div>
-    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modalNewTurma')">Cancelar</button><button class="btn btn-primary" onclick="doNewTurma()">Criar</button></div>
-  </div>
-</div>
+    <!-- GRUPOS PANEL -->
+    <div class="panel" id="panel-grupos">
+      <div class="add-row">
+        <input type="text" class="form-input" id="new-group-name" placeholder="Nome do grupo"
+               onkeydown="if(event.key==='Enter')addGroup()">
+        <button class="btn btn-primary" onclick="addGroup()" style="width:auto; padding: 9px 14px;">+</button>
+      </div>
 
-<div class="overlay" id="modalRenameTurma" onclick="closeBg(event,'modalRenameTurma')">
-  <div class="modal">
-    <div class="modal-title">Renomear Turma <button class="modal-close" onclick="closeModal('modalRenameTurma')">✕</button></div>
-    <div class="field"><label>Novo nome</label><input type="text" id="inpRenameTurma" onkeydown="if(event.key==='Enter')doRenameTurma()"></div>
-    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modalRenameTurma')">Cancelar</button><button class="btn btn-primary" onclick="doRenameTurma()">Guardar</button></div>
-  </div>
-</div>
+      <div class="section-title">Grupos Criados</div>
+      <div id="group-list"></div>
+      <div class="drag-hint" id="group-hint">Crie grupos e atribua alunos pelo clique-direito nas secretárias</div>
 
-<div class="overlay" id="modalAddStudents" onclick="closeBg(event,'modalAddStudents')">
-  <div class="modal">
-    <div class="modal-title">Adicionar Alunos <button class="modal-close" onclick="closeModal('modalAddStudents')">✕</button></div>
-    <div class="field">
-      <label>Lista de alunos (um por linha)</label>
-      <textarea id="inpStudents" placeholder="Ana Silva&#10;Bruno Costa&#10;Carla Mendes&#10;…"></textarea>
-      <div class="field-hint">Cole ou escreva um nome por linha. Nomes duplicados são ignorados.</div>
+      <div class="section-title" style="margin-top:24px;">Distribuição Automática</div>
+      <div class="form-group">
+        <label class="form-label">Nº de grupos</label>
+        <div style="display:flex; gap:8px;">
+          <input type="number" class="form-input" id="auto-group-count" value="4" min="2" max="10">
+          <button class="btn btn-secondary" onclick="autoDistributeGroups()" style="width:auto; white-space:nowrap;">Distribuir</button>
+        </div>
+      </div>
     </div>
-    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modalAddStudents')">Cancelar</button><button class="btn btn-primary" onclick="doAddStudents()">Adicionar</button></div>
+  </div>
+
+  <div class="sidebar-footer">
+    <button class="btn btn-secondary" onclick="exportData()">💾 Guardar</button>
+    <button class="btn btn-secondary" onclick="document.getElementById('import-input').click()">📂 Carregar</button>
+    <input type="file" id="import-input" accept=".json" style="display:none" onchange="importData(event)">
+    <button class="btn btn-secondary" onclick="clearAll()">🗑️ Limpar</button>
+  </div>
+</aside>
+
+<main class="main">
+  <div class="toolbar">
+    <div class="toolbar-group">
+      <input type="text" class="room-name-input" id="room-name" placeholder="Nome da Turma / Sala" value="Sala de Aula">
+    </div>
+    <div class="toolbar-group">
+      <button class="btn" onclick="shuffleStudents()">🔀 Baralhar</button>
+      <button class="btn" onclick="autoAssign()">⚡ Auto-atribuir</button>
+      <button class="btn" onclick="printLayout()">🖨️ Imprimir</button>
+    </div>
+    <div class="toolbar-group">
+      <div class="zoom-controls">
+        <button class="zoom-btn" onclick="changeZoom(-0.1)">−</button>
+        <span class="zoom-level" id="zoom-level">100%</span>
+        <button class="zoom-btn" onclick="changeZoom(0.1)">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="classroom-wrapper" id="classroom-wrapper">
+    <div class="print-header">
+      <h2 id="print-title"></h2>
+      <p id="print-date"></p>
+    </div>
+
+    <div class="classroom" id="classroom">
+      <div class="classroom-grid"></div>
+      <div class="teacher-desk">Professor(a)</div>
+    </div>
+
+    <div class="print-groups" id="print-groups"></div>
+    <div class="print-footer">
+      <span id="print-footer-text"></span>
+    </div>
+  </div>
+</main>
+
+<!-- Assign Modal -->
+<div class="modal-overlay" id="assign-modal">
+  <div class="modal">
+    <h3 id="assign-modal-title">Atribuir Aluno</h3>
+    <div class="form-group">
+      <label class="form-label">Selecionar Aluno</label>
+      <input type="text" class="form-input" id="assign-search" placeholder="Filtrar..."
+             oninput="filterAssignList()" style="margin-bottom:8px; background:var(--bg); color:var(--text-primary); border-color:var(--desk-border);">
+      <div class="assign-list" id="assign-list"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeAssignModal()">Cancelar</button>
+      <button class="btn btn-danger btn-sm" id="unassign-btn" onclick="unassignFromSeat()" style="display:none;">Remover</button>
+      <button class="btn btn-primary" onclick="confirmAssign()">Atribuir</button>
+    </div>
   </div>
 </div>
 
-<!-- Assign panel -->
-<div class="popover" id="assignPanel">
-  <div class="popover-title">Atribuir aluno</div>
-  <input class="pop-search" type="text" id="assignSearch" placeholder="Pesquisar…" oninput="renderAssignList()">
-  <div class="pop-list" id="assignList"></div>
+<!-- Group Assign Modal -->
+<div class="modal-overlay" id="group-modal">
+  <div class="modal">
+    <h3>Atribuir a Grupo</h3>
+    <div id="group-assign-list"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="closeGroupModal()">Cancelar</button>
+      <button class="btn btn-danger btn-sm" onclick="removeFromGroup()">Sem Grupo</button>
+    </div>
+  </div>
 </div>
-
-<!-- Group select popover -->
-<div class="popover" id="groupPanel" style="min-width:170px;">
-  <div class="popover-title">Definir grupo</div>
-  <div class="pop-list" id="groupPanelList"></div>
-</div>
-
-<!-- Context Menu -->
-<div class="ctx" id="ctxMenu">
-  <div class="ctx-item" id="ctxAssign" onclick="ctxAssign()">👤 Atribuir aluno</div>
-  <div class="ctx-item" id="ctxEdit" onclick="ctxEdit()">✏️ Editar nome</div>
-  <div class="ctx-item" id="ctxGroup" onclick="ctxGroup()">🎨 Definir grupo</div>
-  <div class="ctx-div"></div>
-  <div class="ctx-item danger" id="ctxClear" onclick="ctxClear()">🗑 Limpar secretária</div>
-  <div class="ctx-item danger" onclick="ctxRemove()">✕ Remover secretária</div>
-</div>
-
-<div class="toasts" id="toasts"></div>
 
 <script>
-// ════ DATA ════
-const GC = [
-  {c:'#01696f',b:'var(--g1b)',t:'var(--g1t)',n:'Verde-azulado'},
-  {c:'#964219',b:'var(--g2b)',t:'var(--g2t)',n:'Terracota'},
-  {c:'#006494',b:'var(--g3b)',t:'var(--g3t)',n:'Azul'},
-  {c:'#7a39bb',b:'var(--g4b)',t:'var(--g4t)',n:'Roxo'},
-  {c:'#437a22',b:'var(--g5b)',t:'var(--g5t)',n:'Verde'},
-  {c:'#da7101',b:'var(--g6b)',t:'var(--g6t)',n:'Laranja'},
-  {c:'#a12c7b',b:'var(--g7b)',t:'var(--g7t)',n:'Rosa'},
-  {c:'#d19900',b:'var(--g8b)',t:'var(--g8t)',n:'Dourado'},
-];
+// ===================== STATE =====================
+// Each desk has: { id, number, x, y, type:'single'|'pair', students: [null] or [null,null] }
+let state = {
+  students: [],   // { id, name, deskId, seatIndex, groupId }
+  desks: [],      // { id, number, x, y, type, students: [id|null, ...] }
+  groups: [],     // { id, name, color }
+  roomWidth: 900,
+  roomHeight: 650,
+  roomName: 'Sala de Aula',
+  zoom: 1,
+  deskType: 'pair',
+  nextId: 1
+};
 
-let state = { turmas:[], activeId:null };
-let mode = 'edit';
-let activeGroupFilter = null;
-let ctxDeskId = null;
-let assignDeskId = null;
-let dragSid = null;
-let uid = Date.now();
-function nid(){ return ++uid; }
+let currentAssign = { deskId: null, seatIndex: 0 };
+let selectedAssignStudent = null;
+let draggedStudentId = null;
+let ctxMenuEl = null;
 
-function turma(){ return state.turmas.find(t=>t.id===state.activeId)||null; }
+const GROUP_COLORS = ['#d4825a','#5a8a5e','#5a7ab8','#b85a8a','#8a7a5a','#5ab8a8','#b8825a','#7a5ab8','#b85a5a','#5ab85a'];
 
-// ════ INIT ════
-function init(){
-  const t = mkTurma('8ºA');
-  t.students = [
-    {id:nid(),name:'Ana Silva'},{id:nid(),name:'Bruno Costa'},{id:nid(),name:'Carla Mendes'},
-    {id:nid(),name:'David Lopes'},{id:nid(),name:'Eva Martins'},{id:nid(),name:'Filipe Sousa'},
-    {id:nid(),name:'Gina Reis'},{id:nid(),name:'Hugo Nunes'},{id:nid(),name:'Inês Faria'},
-    {id:nid(),name:'João Pinto'},{id:nid(),name:'Lara Teixeira'},{id:nid(),name:'Miguel Santos'},
-    {id:nid(),name:'Nádia Barros'},{id:nid(),name:'Oscar Leite'},{id:nid(),name:'Paula Vaz'},
-  ];
-  t.groups = [
-    {id:'g1',name:'Grupo 1',ci:0},{id:'g2',name:'Grupo 2',ci:2},{id:'g3',name:'Grupo 3',ci:4},
-  ];
-  t.desks.slice(0,5).forEach(d=>{ d.sid=t.students[t.desks.indexOf(d)]?.id||null; d.gid='g1'; });
-  t.desks.slice(5,10).forEach(d=>{ d.sid=t.students[t.desks.indexOf(d)]?.id||null; d.gid='g2'; });
-  t.desks.slice(10,15).forEach(d=>{ d.sid=t.students[t.desks.indexOf(d)]?.id||null; d.gid='g3'; });
-  t.desks.forEach((d,i)=>{ d.sid=t.students[i]?.id||null; });
-  state.turmas.push(t); state.activeId=t.id;
-  render();
+// ===================== HELPERS =====================
+function esc(str) {
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
 }
 
-function mkTurma(name){
-  const id=nid(), cols=4, rows=5;
-  const desks=[];
-  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) desks.push({id:nid(),r,c,sid:null,gid:null});
-  return {id,name,students:[],groups:[],grid:{cols,rows},desks};
+function toast(msg) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2500);
 }
 
-// ════ RENDER ════
-function render(){ renderTurmas(); renderSidebar(); renderClassroom(); updateHeader(); }
-function updateHeader(){
-  const t=turma();
-  document.getElementById('hdrTurmaName').textContent = t?t.name:'—';
+function deskCapacity(desk) {
+  return desk.type === 'pair' ? 2 : 1;
 }
 
-function renderTurmas(){
-  const el=document.getElementById('turmasList');
-  if(!state.turmas.length){
-    el.innerHTML='<div class="pool-empty">Sem turmas. Crie uma.</div>'; return;
+function deskStudents(desk) {
+  return desk.students.filter(id => id !== null);
+}
+
+function totalCapacity() {
+  return state.desks.reduce((sum, d) => sum + deskCapacity(d), 0);
+}
+
+function deskWidth(desk) {
+  return desk.type === 'pair' ? 160 : 100;
+}
+
+// ===================== INIT =====================
+function init() {
+  document.getElementById('desk-type').value = state.deskType;
+  updateRoomSize();
+  regenerateDesks();
+  renderStudents();
+  renderGroups();
+  setupTabs();
+  setupDeskDrag();
+  setupCtxClose();
+}
+
+// ===================== TABS =====================
+function setupTabs() {
+  document.querySelectorAll('.sidebar-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.sidebar-tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      tab.classList.add('active');
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+}
+
+// ===================== STUDENTS =====================
+function addStudent() {
+  const input = document.getElementById('new-student-name');
+  const name = input.value.trim();
+  if (!name) return;
+  state.students.push({ id: state.nextId++, name, deskId: null, seatIndex: null, groupId: null });
+  input.value = '';
+  input.focus();
+  renderStudents();
+  renderDesks();
+}
+
+function addBulkStudents() {
+  const text = document.getElementById('bulk-students').value;
+  const names = text.split('\n').map(n => n.trim()).filter(n => n);
+  names.forEach(name => {
+    state.students.push({ id: state.nextId++, name, deskId: null, seatIndex: null, groupId: null });
+  });
+  document.getElementById('bulk-students').value = '';
+  renderStudents();
+  renderDesks();
+  toast(names.length + ' alunos adicionados');
+}
+
+function removeStudent(id) {
+  // Remove from desk
+  const student = state.students.find(s => s.id === id);
+  if (student && student.deskId !== null) {
+    const desk = state.desks.find(d => d.id === student.deskId);
+    if (desk) {
+      const idx = desk.students.indexOf(id);
+      if (idx !== -1) desk.students[idx] = null;
+    }
   }
-  el.innerHTML=state.turmas.map(t=>{
-    const a=t.id===state.activeId?' active':'';
-    const n=t.students.length;
-    return `<div class="turma-row${a}" onclick="selTurma(${t.id})">
-      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-      <span class="turma-row-name">${x(t.name)}</span>
-      <span class="turma-count">${n}</span>
-      <button class="turma-del" onclick="delTurma(event,${t.id})" title="Eliminar">✕</button>
+  state.students = state.students.filter(s => s.id !== id);
+  renderStudents();
+  renderDesks();
+}
+
+function renderStudents() {
+  const list = document.getElementById('student-list');
+  const hint = document.getElementById('student-hint');
+  const seated = state.students.filter(s => s.deskId !== null);
+  const unseated = state.students.filter(s => s.deskId === null);
+
+  document.getElementById('count-total').textContent = state.students.length;
+  document.getElementById('count-seated').textContent = seated.length;
+  document.getElementById('count-unseated').textContent = unseated.length;
+  document.getElementById('count-capacity').textContent = totalCapacity();
+
+  if (state.students.length === 0) {
+    list.innerHTML = '';
+    hint.style.display = 'block';
+    return;
+  }
+
+  hint.style.display = 'none';
+  const sorted = [...state.students].sort((a, b) => a.name.localeCompare(b.name, 'pt'));
+
+  list.innerHTML = sorted.map(s => {
+    const group = state.groups.find(g => g.id === s.groupId);
+    const dotColor = group ? group.color : (s.deskId !== null ? '#5a8a5e' : 'rgba(255,255,255,0.2)');
+    const statusClass = s.deskId !== null ? 'seated' : 'unseated';
+    const desk = s.deskId !== null ? state.desks.find(d => d.id === s.deskId) : null;
+    const seatLabel = desk ? `Mesa ${desk.number}${desk.type === 'pair' ? (s.seatIndex === 0 ? 'A' : 'B') : ''}` : 'Por sentar';
+
+    return `<div class="student-item ${statusClass}" draggable="true"
+                 ondragstart="onStudentDragStart(event, ${s.id})"
+                 ondragend="onStudentDragEnd(event)">
+      <span class="student-dot" style="background:${dotColor}"></span>
+      <span class="student-name">${esc(s.name)}</span>
+      <span class="student-seat-info">${seatLabel}</span>
+      <span class="student-actions">
+        <button class="btn-icon danger" onclick="event.stopPropagation();removeStudent(${s.id})" title="Remover">×</button>
+      </span>
     </div>`;
   }).join('');
 }
 
-function renderSidebar(){
-  const t=turma();
-  const pool=document.getElementById('studentPool');
-  const poolEmpty=document.getElementById('poolEmpty');
-  const gList=document.getElementById('groupsList');
-  if(!t){ pool.innerHTML=''; poolEmpty.style.display='none'; gList.innerHTML=''; return; }
+// ===================== DESKS =====================
+function makeDesk(number, x, y) {
+  const type = state.deskType;
+  const seats = type === 'pair' ? [null, null] : [null];
+  return { id: state.nextId++, number, x, y, type, students: seats };
+}
 
-  const seated=new Set(t.desks.filter(d=>d.sid).map(d=>d.sid));
-  const ss=[...t.students].sort((a,b)=>a.name.localeCompare(b.name,'pt'));
-  if(!ss.length){
-    pool.innerHTML='<div class="pool-empty">Sem alunos. Clique em + Adicionar.</div>';
-    poolEmpty.style.display='none';
-  } else {
-    const all=ss.every(s=>seated.has(s.id));
-    poolEmpty.style.display=all?'block':'none';
-    pool.innerHTML=ss.map(s=>{
-      const isSat=seated.has(s.id);
-      const dsk=isSat?t.desks.find(d=>d.sid===s.id):null;
-      const grp=dsk?.gid?t.groups.find(g=>g.id===dsk.gid):null;
-      const gc=grp?GC[grp.ci]:null;
-      return `<div class="chip${isSat?' seated':''}" draggable="true" data-sid="${s.id}"
-        ondragstart="chipDragStart(event,${s.id})" ondragend="chipDragEnd(event)">
-        <span class="gdot" style="background:${gc?gc.c:'transparent'};border:1px solid ${gc?gc.c:'var(--color-border)'}"></span>
-        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${x(s.name)}</span>
-        <button class="chip-del" onclick="rmStudent(event,${s.id})" title="Remover">✕</button>
-      </div>`;
-    }).join('');
+function regenerateDesks() {
+  const count = parseInt(document.getElementById('desk-count').value) || 15;
+
+  // Clear assignments
+  state.students.forEach(s => { s.deskId = null; s.seatIndex = null; });
+  state.desks = [];
+
+  for (let i = 0; i < count; i++) {
+    state.desks.push(makeDesk(i + 1, 0, 0));
   }
 
-  if(!t.groups.length){
-    gList.innerHTML='<div class="pool-empty">Sem grupos.</div>';
-  } else {
-    gList.innerHTML=t.groups.map(g=>{
-      const gc=GC[g.ci];
-      const cnt=t.desks.filter(d=>d.gid===g.id).length;
-      const hi=activeGroupFilter===g.id;
-      return `<div class="group-row${hi?' selected':''}" style="background:${gc.b};" onclick="hlGroup('${g.id}')">
-        <span class="gswatch" style="background:${gc.c}"></span>
-        <input class="gname-input" value="${x(g.name)}" style="color:${gc.t}"
-          onchange="renameGroup('${g.id}',this.value)" onclick="event.stopPropagation()">
-        <span class="gcount" style="color:${gc.t}">${cnt}👤</span>
-        <button class="group-del btn-danger" onclick="delGroup(event,'${g.id}')">✕</button>
-      </div>`;
-    }).join('');
+  // Apply layout
+  const activeEl = document.querySelector('.layout-option.active');
+  const layout = activeEl ? activeEl.dataset.layout : 'rows';
+  positionDesks(layout);
+  renderDesks();
+  renderStudents();
+}
+
+function addSingleDesk() {
+  const num = state.desks.length + 1;
+  const w = state.deskType === 'pair' ? 160 : 100;
+  const desk = makeDesk(num, state.roomWidth / 2 - w / 2, state.roomHeight / 2);
+  state.desks.push(desk);
+  renderDesks();
+  renderStudents();
+}
+
+function removeDesk(id) {
+  const desk = state.desks.find(d => d.id === id);
+  if (desk) {
+    desk.students.forEach(sid => {
+      if (sid !== null) {
+        const s = state.students.find(st => st.id === sid);
+        if (s) { s.deskId = null; s.seatIndex = null; }
+      }
+    });
+  }
+  state.desks = state.desks.filter(d => d.id !== id);
+  state.desks.forEach((d, i) => d.number = i + 1);
+  renderDesks();
+  renderStudents();
+}
+
+function positionDesks(layout) {
+  const count = state.desks.length;
+  const W = state.roomWidth;
+  const H = state.roomHeight;
+  const topMargin = 90;
+  const padding = 30;
+
+  state.desks.forEach(d => {
+    // Ensure type matches current
+    const newType = state.deskType;
+    if (d.type !== newType) {
+      if (newType === 'pair' && d.students.length === 1) {
+        d.students.push(null);
+      } else if (newType === 'single' && d.students.length === 2) {
+        // Move second student out
+        if (d.students[1] !== null) {
+          const s = state.students.find(st => st.id === d.students[1]);
+          if (s) { s.deskId = null; s.seatIndex = null; }
+        }
+        d.students = [d.students[0]];
+      }
+      d.type = newType;
+    }
+  });
+
+  const dW = state.deskType === 'pair' ? 160 : 100;
+  const dH = 60;
+
+  if (layout === 'rows') {
+    const cols = Math.max(1, Math.floor((W - padding * 2 + 20) / (dW + 20)));
+    const rows = Math.ceil(count / cols);
+    const gapX = (W - padding * 2) / cols;
+    const gapY = (H - topMargin - padding) / Math.max(rows, 1);
+
+    state.desks.forEach((d, i) => {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      d.x = padding + col * gapX + (gapX - dW) / 2;
+      d.y = topMargin + row * gapY + (gapY - dH) / 2;
+    });
+  }
+  else if (layout === 'pairs') {
+    // 2 desks side by side per pair group
+    const pairGap = 6;
+    const groupW = dW * 2 + pairGap;
+    const pairsPerRow = Math.max(1, Math.floor((W - padding * 2 + 20) / (groupW + 30)));
+    const numPairs = Math.ceil(count / 2);
+    const rows = Math.ceil(numPairs / pairsPerRow);
+    const gapX = (W - padding * 2) / pairsPerRow;
+    const gapY = (H - topMargin - padding) / Math.max(rows, 1);
+
+    state.desks.forEach((d, i) => {
+      const pairIdx = Math.floor(i / 2);
+      const side = i % 2;
+      const col = pairIdx % pairsPerRow;
+      const row = Math.floor(pairIdx / pairsPerRow);
+      const baseX = padding + col * gapX + (gapX - groupW) / 2;
+      d.x = baseX + side * (dW + pairGap);
+      d.y = topMargin + row * gapY + (gapY - dH) / 2;
+    });
+  }
+  else if (layout === 'ushape') {
+    const left = Math.floor(count / 3);
+    const right = Math.floor(count / 3);
+    const bottom = count - left - right;
+    let idx = 0;
+
+    for (let i = 0; i < left; i++) {
+      state.desks[idx].x = padding;
+      state.desks[idx].y = topMargin + i * ((H - topMargin - padding) / Math.max(left, 1));
+      idx++;
+    }
+    for (let i = 0; i < bottom; i++) {
+      state.desks[idx].x = padding + (i + 1) * ((W - padding * 2) / (bottom + 1)) - dW / 2;
+      state.desks[idx].y = H - padding - dH;
+      idx++;
+    }
+    for (let i = right - 1; i >= 0; i--) {
+      state.desks[idx].x = W - padding - dW;
+      state.desks[idx].y = topMargin + i * ((H - topMargin - padding) / Math.max(right, 1));
+      idx++;
+    }
+  }
+  else if (layout === 'groups') {
+    const groupSize = 4;
+    const numGroups = Math.ceil(count / groupSize);
+    const gCols = Math.max(1, Math.ceil(Math.sqrt(numGroups * (W / H))));
+    const gRows = Math.ceil(numGroups / gCols);
+    const cellW = (W - padding * 2) / gCols;
+    const cellH = (H - topMargin - padding) / Math.max(gRows, 1);
+
+    state.desks.forEach((d, i) => {
+      const gIdx = Math.floor(i / groupSize);
+      const pos = i % groupSize;
+      const gCol = gIdx % gCols;
+      const gRow = Math.floor(gIdx / gCols);
+      const cx = padding + gCol * cellW + cellW / 2;
+      const cy = topMargin + gRow * cellH + cellH / 2;
+      const offsets = [
+        [-dW / 2 - 2, -dH / 2 - 2],
+        [2, -dH / 2 - 2],
+        [-dW / 2 - 2, 2],
+        [2, 2]
+      ];
+      const off = offsets[pos] || [0, 0];
+      d.x = cx + off[0];
+      d.y = cy + off[1];
+    });
   }
 }
 
-function renderClassroom(){
-  const wrap=document.getElementById('classroomWrap');
-  const t=turma();
-  if(!t){
-    wrap.innerHTML=`<div class="empty-state">
-      <div class="empty-icon">🏫</div>
-      <h3>Nenhuma turma selecionada</h3>
-      <p>Crie ou selecione uma turma na barra lateral para começar.</p>
-      <button class="btn btn-primary" onclick="openModal('modalNewTurma')">+ Criar turma</button>
-    </div>`; return;
-  }
-  const {cols,rows}=t.grid;
-  document.getElementById('gCols').value=cols;
-  document.getElementById('gRows').value=rows;
+function renderDesks() {
+  const classroom = document.getElementById('classroom');
+  classroom.querySelectorAll('.desk').forEach(el => el.remove());
 
-  let html=`<div class="print-header">${x(t.name)} — Planta de Sala</div>
-  <div class="teacher-zone">
-    <div class="board-row"><div class="board-line"></div><span class="board-label">▲ QUADRO</span><div class="board-line"></div></div>
-    <div class="teacher-desk">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
-      Secretária do Professor
-    </div>
-    <div class="down-label">↓ Alunos</div>
-  </div>
-  <div class="student-grid" id="sGrid" style="grid-template-columns:repeat(${cols},100px);">`;
+  state.desks.forEach(d => {
+    const el = document.createElement('div');
+    const hasAny = d.students.some(sid => sid !== null);
+    el.className = `desk ${d.type}${hasAny ? ' has-students' : ''}`;
+    el.style.left = d.x + 'px';
+    el.style.top = d.y + 'px';
+    el.dataset.deskId = d.id;
 
-  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
-    const d=t.desks.find(d=>d.r===r&&d.c===c);
-    if(d) html+=mkDesk(d,t,r*cols+c+1);
-    else html+=`<div style="width:100px;height:74px;"></div>`;
-  }
-  html+=`</div>`;
+    let contentHTML = `<span class="desk-number">${d.number}</span>`;
+    contentHTML += `<div class="desk-content">`;
 
-  if(t.groups.length){
-    html+=`<div class="print-legend"><div class="print-legend-title">Grupos de Trabalho</div><div class="print-legend-items">`;
-    t.groups.forEach(g=>{
-      const gc=GC[g.ci];
-      html+=`<div class="print-legend-item"><div class="print-swatch" style="background:${gc.c}"></div><span>${x(g.name)}</span></div>`;
+    const seatCount = d.type === 'pair' ? 2 : 1;
+    for (let si = 0; si < seatCount; si++) {
+      const sid = d.students[si];
+      const student = sid !== null ? state.students.find(s => s.id === sid) : null;
+      const group = student ? state.groups.find(g => g.id === student.groupId) : null;
+
+      contentHTML += `<div class="seat-slot" data-desk-id="${d.id}" data-seat="${si}">`;
+      if (student) {
+        contentHTML += `<span class="seat-student">${esc(student.name)}</span>`;
+        if (group) {
+          contentHTML += `<span class="seat-group-dot" style="background:${group.color}"></span>`;
+        }
+      } else {
+        contentHTML += `<span class="seat-empty">+</span>`;
+      }
+      contentHTML += `</div>`;
+    }
+
+    contentHTML += `</div>`;
+    contentHTML += `<button class="desk-remove" onclick="event.stopPropagation();removeDesk(${d.id})">×</button>`;
+
+    el.innerHTML = contentHTML;
+
+    // Click on seat slot to assign
+    el.querySelectorAll('.seat-slot').forEach(slot => {
+      slot.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const deskId = parseInt(slot.dataset.deskId);
+        const seatIdx = parseInt(slot.dataset.seat);
+        openAssignModal(deskId, seatIdx);
+      });
+
+      // Drag over seat slot
+      slot.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        slot.classList.add('drag-over-slot');
+      });
+      slot.addEventListener('dragleave', () => slot.classList.remove('drag-over-slot'));
+      slot.addEventListener('drop', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        slot.classList.remove('drag-over-slot');
+        if (draggedStudentId !== null) {
+          const deskId = parseInt(slot.dataset.deskId);
+          const seatIdx = parseInt(slot.dataset.seat);
+          assignStudentToSeat(draggedStudentId, deskId, seatIdx);
+        }
+      });
     });
-    html+=`</div></div>`;
-  }
 
-  wrap.innerHTML=html;
+    // Also accept drops on the desk itself (auto-find empty seat)
+    el.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      el.classList.add('drag-over');
+    });
+    el.addEventListener('dragleave', (e) => {
+      if (!el.contains(e.relatedTarget)) el.classList.remove('drag-over');
+    });
+    el.addEventListener('drop', (e) => {
+      e.preventDefault();
+      el.classList.remove('drag-over');
+      if (draggedStudentId !== null) {
+        // Find first empty seat
+        const emptyIdx = d.students.indexOf(null);
+        if (emptyIdx !== -1) {
+          assignStudentToSeat(draggedStudentId, d.id, emptyIdx);
+        } else {
+          // Replace seat 0
+          assignStudentToSeat(draggedStudentId, d.id, 0);
+        }
+      }
+    });
 
-  t.desks.forEach(d=>{
-    const el=document.getElementById('d'+d.id); if(!el) return;
-    el.addEventListener('dragover',e=>{ e.preventDefault(); el.classList.add('drop-over'); });
-    el.addEventListener('dragleave',()=>el.classList.remove('drop-over'));
-    el.addEventListener('drop',e=>{ e.preventDefault(); el.classList.remove('drop-over'); dropToDesk(d.id,e); });
-    el.addEventListener('contextmenu',e=>{ e.preventDefault(); openCtx(d.id,e); });
-    el.addEventListener('click',e=>deskClick(d.id,e));
-    el.addEventListener('dblclick',e=>deskDblClick(d.id,e));
-    if(d.sid) el.setAttribute('draggable','true');
-    el.addEventListener('dragstart',e=>deskDragStart(e,d.id));
-    el.addEventListener('dragend',e=>deskDragEnd(e));
+    // Right click
+    el.addEventListener('contextmenu', (e) => {
+      e.preventDefault();
+      openCtxMenu(d.id, e.clientX, e.clientY);
+    });
+
+    // Desk dragging (mousedown on the desk itself, not on seat slots directly for simple clicks)
+    el.addEventListener('mousedown', (e) => {
+      if (e.target.classList.contains('desk-remove') || e.button !== 0) return;
+      // Only start drag if holding for a moment or moved
+      startDeskDrag(e, d.id);
+    });
+
+    classroom.appendChild(el);
   });
 }
 
-function mkDesk(d,t,num){
-  const st=d.sid?t.students.find(s=>s.id===d.sid):null;
-  const grp=d.gid?t.groups.find(g=>g.id===d.gid):null;
-  const gc=grp?GC[grp.ci]:null;
-  const bg=gc?`background:${gc.b};border-color:${gc.c};`:'';
-  const dimmed=activeGroupFilter&&activeGroupFilter!==d.gid&&d.gid?' dim':'';
-  let cls=`desk${st?' occupied':''}${dimmed}`;
-  return `<div class="${cls}" id="d${d.id}" data-did="${d.id}" style="${bg}">
-    <span class="desk-num">${num}</span>
-    <button class="desk-clear" onclick="clearDesk(event,'${d.id}')" title="Limpar">✕</button>
-    ${st
-      ?`<span class="desk-name">${x(st.name)}</span>`+(gc?`<span class="desk-badge" style="background:${gc.c};color:white;">${x(grp.name)}</span>`:'')
-      :`<span class="desk-empty">${mode==='assign'?'clique para atribuir':'vazio'}</span>`
+// ===================== ASSIGN STUDENT TO SEAT =====================
+function assignStudentToSeat(studentId, deskId, seatIndex) {
+  const desk = state.desks.find(d => d.id === deskId);
+  const student = state.students.find(s => s.id === studentId);
+  if (!desk || !student) return;
+
+  // Remove student from previous seat
+  if (student.deskId !== null) {
+    const prevDesk = state.desks.find(d => d.id === student.deskId);
+    if (prevDesk) {
+      const prevIdx = prevDesk.students.indexOf(studentId);
+      if (prevIdx !== -1) prevDesk.students[prevIdx] = null;
     }
-  </div>`;
+  }
+
+  // If target seat is occupied, swap or displace
+  const existingId = desk.students[seatIndex];
+  if (existingId !== null && existingId !== studentId) {
+    const existingStudent = state.students.find(s => s.id === existingId);
+    if (existingStudent) {
+      // Place displaced student in the seat the dragged student came from
+      if (student.deskId !== null) {
+        const prevDesk = state.desks.find(d => d.id === student.deskId);
+        if (prevDesk && student.seatIndex !== null) {
+          prevDesk.students[student.seatIndex] = existingId;
+          existingStudent.deskId = prevDesk.id;
+          existingStudent.seatIndex = student.seatIndex;
+        } else {
+          existingStudent.deskId = null;
+          existingStudent.seatIndex = null;
+        }
+      } else {
+        existingStudent.deskId = null;
+        existingStudent.seatIndex = null;
+      }
+    }
+  }
+
+  // Place student
+  desk.students[seatIndex] = studentId;
+  student.deskId = deskId;
+  student.seatIndex = seatIndex;
+
+  renderDesks();
+  renderStudents();
 }
 
-// ════ TURMA CRUD ════
-function selTurma(id){ state.activeId=id; activeGroupFilter=null; render(); }
-function delTurma(e,id){
-  e.stopPropagation();
-  if(!confirm('Eliminar esta turma?')) return;
-  state.turmas=state.turmas.filter(t=>t.id!==id);
-  if(state.activeId===id) state.activeId=state.turmas[0]?.id||null;
-  render(); toast('Turma eliminada');
-}
-function openModal(id){
-  document.getElementById(id).classList.add('open');
-  const inp=document.getElementById(id).querySelector('input,textarea');
-  if(inp) setTimeout(()=>inp.focus(),60);
-  if(id==='modalRenameTurma'){ const t=turma(); if(t) document.getElementById('inpRenameTurma').value=t.name; }
-}
-function closeModal(id){ document.getElementById(id).classList.remove('open'); }
-function closeBg(e,id){ if(e.target.id===id) closeModal(id); }
-function doNewTurma(){
-  const v=document.getElementById('inpNewTurma').value.trim(); if(!v) return;
-  const t=mkTurma(v); state.turmas.push(t); state.activeId=t.id;
-  closeModal('modalNewTurma'); document.getElementById('inpNewTurma').value='';
-  render(); toast(`Turma "${v}" criada`);
-}
-function doRenameTurma(){
-  const v=document.getElementById('inpRenameTurma').value.trim(); if(!v) return;
-  const t=turma(); if(t) t.name=v;
-  closeModal('modalRenameTurma'); render();
+// ===================== STUDENT DRAG =====================
+function onStudentDragStart(e, studentId) {
+  draggedStudentId = studentId;
+  e.target.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
 }
 
-// ════ STUDENT CRUD ════
-function doAddStudents(){
-  const t=turma(); if(!t) return;
-  const lines=document.getElementById('inpStudents').value.split('\n').map(l=>l.trim()).filter(Boolean);
-  const ex=new Set(t.students.map(s=>s.name.toLowerCase()));
-  let n=0;
-  lines.forEach(name=>{ if(!ex.has(name.toLowerCase())){ t.students.push({id:nid(),name}); ex.add(name.toLowerCase()); n++; }});
-  closeModal('modalAddStudents'); document.getElementById('inpStudents').value='';
-  render(); toast(`${n} aluno(s) adicionado(s)`);
-}
-function rmStudent(e,sid){
-  e.stopPropagation();
-  const t=turma(); if(!t) return;
-  t.students=t.students.filter(s=>s.id!==sid);
-  t.desks.forEach(d=>{ if(d.sid===sid){ d.sid=null; d.gid=null; }});
-  render();
+function onStudentDragEnd(e) {
+  draggedStudentId = null;
+  e.target.classList.remove('dragging');
+  document.querySelectorAll('.drag-over, .drag-over-slot').forEach(el => {
+    el.classList.remove('drag-over');
+    el.classList.remove('drag-over-slot');
+  });
 }
 
-// ════ GROUP CRUD ════
-function createGroup(){
-  const t=turma(); if(!t) return;
-  const used=new Set(t.groups.map(g=>g.ci));
-  const ci=[0,1,2,3,4,5,6,7].find(i=>!used.has(i))??t.groups.length%8;
-  t.groups.push({id:'g'+nid(),name:`Grupo ${t.groups.length+1}`,ci});
-  render();
-}
-function renameGroup(gid,v){
-  const t=turma(); if(!t) return;
-  const g=t.groups.find(g=>g.id===gid); if(g) g.name=v;
-  renderClassroom();
-}
-function delGroup(e,gid){
-  e.stopPropagation();
-  const t=turma(); if(!t) return;
-  t.desks.forEach(d=>{ if(d.gid===gid) d.gid=null; });
-  t.groups=t.groups.filter(g=>g.id!==gid);
-  if(activeGroupFilter===gid) activeGroupFilter=null;
-  render(); toast('Grupo eliminado');
-}
-function hlGroup(gid){
-  activeGroupFilter=activeGroupFilter===gid?null:gid;
-  renderClassroom();
+// ===================== DESK DRAGGING =====================
+let deskDragState = null;
+
+function setupDeskDrag() {
+  document.addEventListener('mousemove', onDeskDragMove);
+  document.addEventListener('mouseup', onDeskDragEnd);
 }
 
-// ════ GRID ════
-function adjustGrid(ax,d){
-  const t=turma(); if(!t) return;
-  if(ax==='c') t.grid.cols=Math.max(1,Math.min(12,t.grid.cols+d));
-  else t.grid.rows=Math.max(1,Math.min(15,t.grid.rows+d));
-  normDesks(t); render();
+function startDeskDrag(e, deskId) {
+  const classroom = document.getElementById('classroom');
+  const desk = state.desks.find(d => d.id === deskId);
+  const el = classroom.querySelector(`[data-desk-id="${deskId}"]`);
+  if (!el) return;
+
+  deskDragState = {
+    deskId,
+    startX: e.clientX,
+    startY: e.clientY,
+    origX: desk.x,
+    origY: desk.y,
+    el,
+    moved: false
+  };
+  e.preventDefault();
 }
-function applyGrid(){
-  const t=turma(); if(!t) return;
-  t.grid.cols=Math.max(1,Math.min(12,+document.getElementById('gCols').value||4));
-  t.grid.rows=Math.max(1,Math.min(15,+document.getElementById('gRows').value||5));
-  normDesks(t); renderClassroom();
+
+function onDeskDragMove(e) {
+  if (!deskDragState) return;
+  const dx = (e.clientX - deskDragState.startX) / state.zoom;
+  const dy = (e.clientY - deskDragState.startY) / state.zoom;
+
+  if (Math.abs(dx) > 3 || Math.abs(dy) > 3) deskDragState.moved = true;
+  if (!deskDragState.moved) return;
+
+  const desk = state.desks.find(d => d.id === deskDragState.deskId);
+  const w = deskWidth(desk);
+  desk.x = Math.max(0, Math.min(state.roomWidth - w, deskDragState.origX + dx));
+  desk.y = Math.max(0, Math.min(state.roomHeight - 60, deskDragState.origY + dy));
+  desk.x = Math.round(desk.x / 15) * 15;
+  desk.y = Math.round(desk.y / 15) * 15;
+
+  deskDragState.el.style.left = desk.x + 'px';
+  deskDragState.el.style.top = desk.y + 'px';
+  deskDragState.el.classList.add('dragging-desk');
 }
-function normDesks(t){
-  const {cols,rows}=t.grid;
-  const rem=t.desks.filter(d=>d.r>=rows||d.c>=cols);
-  const hasStudents=rem.some(d=>d.sid);
-  if(hasStudents&&!confirm(`Remover ${rem.length} secretária(s) com alunos?`)){
-    t.grid.cols=Math.max(...t.desks.map(d=>d.c))+1;
-    t.grid.rows=Math.max(...t.desks.map(d=>d.r))+1;
+
+function onDeskDragEnd() {
+  if (!deskDragState) return;
+  deskDragState.el.classList.remove('dragging-desk');
+  deskDragState = null;
+}
+
+// ===================== CONTEXT MENU =====================
+function setupCtxClose() {
+  document.addEventListener('click', closeCtxMenu);
+  document.addEventListener('contextmenu', (e) => {
+    if (!e.target.closest('.desk')) closeCtxMenu();
+  });
+}
+
+function closeCtxMenu() {
+  if (ctxMenuEl) { ctxMenuEl.remove(); ctxMenuEl = null; }
+}
+
+function openCtxMenu(deskId, cx, cy) {
+  closeCtxMenu();
+  const desk = state.desks.find(d => d.id === deskId);
+  if (!desk) return;
+
+  const menu = document.createElement('div');
+  menu.className = 'ctx-menu';
+  menu.style.left = cx + 'px';
+  menu.style.top = cy + 'px';
+
+  let items = '';
+
+  // For each seat
+  const seatCount = desk.type === 'pair' ? 2 : 1;
+  for (let si = 0; si < seatCount; si++) {
+    const sid = desk.students[si];
+    const seatLabel = seatCount > 1 ? ` (${si === 0 ? 'A' : 'B'})` : '';
+    if (sid !== null) {
+      const s = state.students.find(st => st.id === sid);
+      items += `<button class="ctx-item" onclick="event.stopPropagation();openAssignModal(${deskId},${si});closeCtxMenu()">↔ Trocar${seatLabel}: ${esc(s?.name || '')}</button>`;
+      items += `<button class="ctx-item" onclick="event.stopPropagation();openGroupAssignModal(${sid});closeCtxMenu()">🏷️ Grupo${seatLabel}</button>`;
+      items += `<button class="ctx-item danger" onclick="event.stopPropagation();quickUnassign(${deskId},${si});closeCtxMenu()">✕ Remover${seatLabel}</button>`;
+    } else {
+      items += `<button class="ctx-item" onclick="event.stopPropagation();openAssignModal(${deskId},${si});closeCtxMenu()">+ Atribuir${seatLabel}</button>`;
+    }
+  }
+
+  items += `<button class="ctx-item danger" onclick="event.stopPropagation();removeDesk(${deskId});closeCtxMenu()">🗑️ Apagar Mesa</button>`;
+
+  menu.innerHTML = items;
+  document.body.appendChild(menu);
+  ctxMenuEl = menu;
+
+  // Keep in viewport
+  const rect = menu.getBoundingClientRect();
+  if (rect.right > window.innerWidth) menu.style.left = (cx - rect.width) + 'px';
+  if (rect.bottom > window.innerHeight) menu.style.top = (cy - rect.height) + 'px';
+
+  setTimeout(() => menu.addEventListener('click', closeCtxMenu), 0);
+}
+
+function quickUnassign(deskId, seatIndex) {
+  const desk = state.desks.find(d => d.id === deskId);
+  if (!desk) return;
+  const sid = desk.students[seatIndex];
+  if (sid !== null) {
+    const s = state.students.find(st => st.id === sid);
+    if (s) { s.deskId = null; s.seatIndex = null; }
+    desk.students[seatIndex] = null;
+  }
+  renderDesks();
+  renderStudents();
+}
+
+// ===================== ASSIGN MODAL =====================
+function openAssignModal(deskId, seatIndex) {
+  currentAssign = { deskId, seatIndex };
+  selectedAssignStudent = null;
+  const desk = state.desks.find(d => d.id === deskId);
+  const modal = document.getElementById('assign-modal');
+  const title = document.getElementById('assign-modal-title');
+  const unassignBtn = document.getElementById('unassign-btn');
+
+  const seatLabel = desk.type === 'pair' ? (seatIndex === 0 ? 'A' : 'B') : '';
+  title.textContent = `Mesa ${desk.number}${seatLabel} — Atribuir Aluno`;
+  unassignBtn.style.display = desk.students[seatIndex] !== null ? 'inline-flex' : 'none';
+  document.getElementById('assign-search').value = '';
+
+  renderAssignList();
+  modal.classList.add('visible');
+}
+
+function closeAssignModal() {
+  document.getElementById('assign-modal').classList.remove('visible');
+  currentAssign = { deskId: null, seatIndex: 0 };
+}
+
+function renderAssignList(filter = '') {
+  const list = document.getElementById('assign-list');
+  const desk = state.desks.find(d => d.id === currentAssign.deskId);
+  const available = state.students.filter(s =>
+    s.name.toLowerCase().includes(filter.toLowerCase())
+  ).sort((a, b) => a.name.localeCompare(b.name, 'pt'));
+
+  list.innerHTML = available.map(s => {
+    const isCurrent = desk && desk.students[currentAssign.seatIndex] === s.id;
+    const isElsewhere = s.deskId !== null && s.deskId !== currentAssign.deskId;
+    const sameDesk = s.deskId === currentAssign.deskId && !isCurrent;
+    const group = state.groups.find(g => g.id === s.groupId);
+    const dotColor = group ? group.color : '#999';
+
+    let info = 'Livre';
+    if (isCurrent) info = 'Atual';
+    else if (sameDesk) {
+      const d2 = state.desks.find(d => d.id === s.deskId);
+      info = `Mesa ${d2.number}${s.seatIndex === 0 ? 'A' : 'B'}`;
+    }
+    else if (isElsewhere) {
+      const d2 = state.desks.find(d => d.id === s.deskId);
+      info = `Mesa ${d2?.number || '?'}`;
+    }
+
+    return `<div class="assign-option ${isCurrent ? 'selected' : ''}" onclick="selectAssignStudent(${s.id}, this)">
+      <span style="width:10px;height:10px;border-radius:50%;background:${dotColor};flex-shrink:0;"></span>
+      <span style="flex:1;font-size:13px;">${esc(s.name)}</span>
+      <span style="font-size:10px;color:var(--text-secondary);">${info}</span>
+    </div>`;
+  }).join('');
+}
+
+function filterAssignList() {
+  renderAssignList(document.getElementById('assign-search').value);
+}
+
+function selectAssignStudent(id, el) {
+  document.querySelectorAll('.assign-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedAssignStudent = id;
+}
+
+function confirmAssign() {
+  if (selectedAssignStudent === null) return;
+  assignStudentToSeat(selectedAssignStudent, currentAssign.deskId, currentAssign.seatIndex);
+  closeAssignModal();
+}
+
+function unassignFromSeat() {
+  quickUnassign(currentAssign.deskId, currentAssign.seatIndex);
+  closeAssignModal();
+}
+
+// ===================== GROUPS =====================
+function addGroup() {
+  const input = document.getElementById('new-group-name');
+  const name = input.value.trim();
+  if (!name) return;
+  const colorIdx = state.groups.length % GROUP_COLORS.length;
+  state.groups.push({ id: state.nextId++, name, color: GROUP_COLORS[colorIdx] });
+  input.value = '';
+  renderGroups();
+}
+
+function removeGroup(id) {
+  state.students.forEach(s => { if (s.groupId === id) s.groupId = null; });
+  state.groups = state.groups.filter(g => g.id !== id);
+  renderGroups();
+  renderDesks();
+  renderStudents();
+}
+
+function renderGroups() {
+  const list = document.getElementById('group-list');
+  const hint = document.getElementById('group-hint');
+
+  if (state.groups.length === 0) {
+    list.innerHTML = '';
+    hint.style.display = 'block';
     return;
   }
-  t.desks=t.desks.filter(d=>d.r<rows&&d.c<cols);
-  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
-    if(!t.desks.find(d=>d.r===r&&d.c===c)) t.desks.push({id:nid(),r,c,sid:null,gid:null});
+
+  hint.style.display = 'none';
+  list.innerHTML = state.groups.map(g => {
+    const members = state.students.filter(s => s.groupId === g.id);
+    return `<div class="group-item" style="border-left-color:${g.color}">
+      <div class="group-header">
+        <span class="group-name">${esc(g.name)}</span>
+        <button class="btn-icon danger" onclick="removeGroup(${g.id})" title="Apagar grupo">×</button>
+      </div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.4);line-height:1.5;">
+        ${members.length === 0 ? '<span style="opacity:0.5">Sem membros</span>' :
+          members.map(m => `<span class="group-member-tag">${esc(m.name)}</span>`).join('')
+        }
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openGroupAssignModal(studentId) {
+  const modal = document.getElementById('group-modal');
+  const list = document.getElementById('group-assign-list');
+  currentAssign.studentForGroup = studentId;
+
+  list.innerHTML = state.groups.map(g => `
+    <div class="assign-option" onclick="assignToGroup(${studentId}, ${g.id})" style="cursor:pointer;">
+      <span style="width:12px;height:12px;border-radius:50%;background:${g.color};flex-shrink:0;"></span>
+      <span style="flex:1;font-size:13px;">${esc(g.name)}</span>
+      <span style="font-size:10px;color:var(--text-secondary);">${state.students.filter(s => s.groupId === g.id).length} membros</span>
+    </div>
+  `).join('');
+
+  modal.classList.add('visible');
+}
+
+function closeGroupModal() {
+  document.getElementById('group-modal').classList.remove('visible');
+}
+
+function assignToGroup(studentId, groupId) {
+  const s = state.students.find(st => st.id === studentId);
+  if (s) s.groupId = groupId;
+  closeGroupModal();
+  renderDesks();
+  renderStudents();
+  renderGroups();
+}
+
+function removeFromGroup() {
+  const s = state.students.find(st => st.id === currentAssign.studentForGroup);
+  if (s) s.groupId = null;
+  closeGroupModal();
+  renderDesks();
+  renderStudents();
+  renderGroups();
+}
+
+function autoDistributeGroups() {
+  const count = parseInt(document.getElementById('auto-group-count').value) || 4;
+  while (state.groups.length < count) {
+    const idx = state.groups.length;
+    state.groups.push({
+      id: state.nextId++,
+      name: 'Grupo ' + (idx + 1),
+      color: GROUP_COLORS[idx % GROUP_COLORS.length]
+    });
   }
+  const shuffled = [...state.students].sort(() => Math.random() - 0.5);
+  shuffled.forEach((s, i) => { s.groupId = state.groups[i % count].id; });
+  renderGroups();
+  renderDesks();
+  renderStudents();
+  toast('Alunos distribuídos por ' + count + ' grupos');
 }
 
-// ════ DRAG & DROP ════
-function chipDragStart(e,sid){ dragSid=sid; e.dataTransfer.setData('sid',sid); e.dataTransfer.effectAllowed='move'; setTimeout(()=>e.target.classList.add('dragging'),0); }
-function chipDragEnd(e){ dragSid=null; e.target.classList.remove('dragging'); }
-function deskDragStart(e,did){
-  const t=turma(); if(!t) return;
-  const d=t.desks.find(d=>d.id==did); if(!d?.sid){ e.preventDefault(); return; }
-  dragSid=d.sid; e.dataTransfer.setData('sid',d.sid); e.dataTransfer.setData('fromDid',did); e.dataTransfer.effectAllowed='move';
-  setTimeout(()=>e.target.style.opacity='.5',0);
-}
-function deskDragEnd(e){ dragSid=null; e.target.style.opacity=''; }
-function dropToDesk(tdid,e){
-  const t=turma(); if(!t) return;
-  const sid=+e.dataTransfer.getData('sid');
-  const fdid=e.dataTransfer.getData('fromDid');
-  const tDesk=t.desks.find(d=>d.id==tdid); if(!tDesk) return;
-  if(fdid){
-    const fDesk=t.desks.find(d=>d.id==fdid); if(!fDesk) return;
-    [tDesk.sid,fDesk.sid]=[fDesk.sid,tDesk.sid];
-    [tDesk.gid,fDesk.gid]=[fDesk.gid,tDesk.gid];
-  } else {
-    const old=t.desks.find(d=>d.sid===sid);
-    if(old){ old.sid=null; old.gid=null; }
-    tDesk.sid=sid;
+// ===================== LAYOUT =====================
+function applyLayout(layout) {
+  document.querySelectorAll('.layout-option').forEach(o => o.classList.remove('active'));
+  const el = document.querySelector(`[data-layout="${layout}"]`);
+  if (el) el.classList.add('active');
+
+  if (state.desks.length === 0) {
+    regenerateDesks();
+    return;
   }
-  renderClassroom(); renderSidebar();
+
+  positionDesks(layout);
+  renderDesks();
 }
 
-// ════ DESK CLICK ════
-function deskClick(did,e){
-  if(mode==='assign'){ openAssignPanel(did,e); return; }
-  if(mode==='group'){ openGroupPanel(did,e); return; }
-}
-function deskDblClick(did,e){
-  const t=turma(); if(!t) return;
-  const d=t.desks.find(d=>d.id==did); if(!d?.sid) return;
-  const st=t.students.find(s=>s.id===d.sid); if(!st) return;
-  const el=document.getElementById('d'+did);
-  const nm=el.querySelector('.desk-name'); if(!nm) return;
-  const inp=document.createElement('input');
-  inp.className='desk-name-inp'; inp.value=st.name;
-  nm.replaceWith(inp); inp.focus(); inp.select();
-  const save=()=>{ const v=inp.value.trim(); if(v) st.name=v; renderClassroom(); renderSidebar(); };
-  inp.onblur=save;
-  inp.onkeydown=ev=>{ if(ev.key==='Enter'){ ev.preventDefault(); save(); } if(ev.key==='Escape') renderClassroom(); };
+function updateRoomSize() {
+  state.roomWidth = parseInt(document.getElementById('room-width').value) || 900;
+  state.roomHeight = parseInt(document.getElementById('room-height').value) || 650;
+  const classroom = document.getElementById('classroom');
+  classroom.style.width = state.roomWidth + 'px';
+  classroom.style.height = state.roomHeight + 'px';
+  applyZoom();
 }
 
-// ════ ASSIGN PANEL ════
-function openAssignPanel(did,e){
-  assignDeskId=did;
-  const p=document.getElementById('assignPanel');
-  p.style.left=Math.min(e.clientX,window.innerWidth-270)+'px';
-  p.style.top=Math.min(e.clientY+4,window.innerHeight-300)+'px';
-  p.classList.add('open');
-  document.getElementById('assignSearch').value='';
-  renderAssignList();
-  setTimeout(()=>document.getElementById('assignSearch').focus(),50);
-}
-function renderAssignList(){
-  const t=turma(); if(!t) return;
-  const q=document.getElementById('assignSearch').value.toLowerCase();
-  const seated={}; t.desks.forEach(d=>{ if(d.sid) seated[d.sid]=true; });
-  const ss=t.students.filter(s=>s.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name,'pt'));
-  document.getElementById('assignList').innerHTML=
-    `<div class="pop-item" style="color:var(--color-text-faint)" onclick="doAssign(null)">— Vazio</div>`+
-    ss.map(s=>`<div class="pop-item${seated[s.id]?' seated':''}" onclick="doAssign(${s.id})">${seated[s.id]?'✓ ':''}${x(s.name)}</div>`).join('');
-}
-function doAssign(sid){
-  const t=turma(); if(!t||!assignDeskId) return;
-  const d=t.desks.find(d=>d.id==assignDeskId); if(!d) return;
-  if(sid){ const od=t.desks.find(d=>d.sid===sid); if(od){ od.sid=null; od.gid=null; } }
-  d.sid=sid||null; if(!sid) d.gid=null;
-  closeAll(); renderClassroom(); renderSidebar();
-}
-
-// ════ GROUP PANEL ════
-function openGroupPanel(did,e){
-  const t=turma(); if(!t) return;
-  const d=t.desks.find(d=>d.id==did); if(!d?.sid){ toast('Atribua um aluno primeiro'); return; }
-  if(!t.groups.length){ toast('Crie um grupo na barra lateral'); return; }
-  const p=document.getElementById('groupPanel');
-  p.style.left=Math.min(e.clientX,window.innerWidth-200)+'px';
-  p.style.top=Math.min(e.clientY+4,window.innerHeight-220)+'px';
-  p.classList.add('open');
-  assignDeskId=did;
-  document.getElementById('groupPanelList').innerHTML=
-    `<div class="pop-item" style="color:var(--color-text-faint)" onclick="doSetGroup(null)">✕ Sem grupo</div><div class="pop-div"></div>`+
-    t.groups.map(g=>{const gc=GC[g.ci];return `<div class="pop-item" onclick="doSetGroup('${g.id}')"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${gc.c};margin-right:6px"></span>${x(g.name)}</div>`;}).join('');
-}
-function doSetGroup(gid){
-  const t=turma(); if(!t||!assignDeskId) return;
-  const d=t.desks.find(d=>d.id==assignDeskId); if(d) d.gid=gid;
-  closeAll(); renderClassroom(); renderSidebar();
-}
-
-// ════ CONTEXT MENU ════
-function openCtx(did,e){
-  ctxDeskId=did;
-  const m=document.getElementById('ctxMenu');
-  m.style.left=Math.min(e.clientX,window.innerWidth-200)+'px';
-  m.style.top=Math.min(e.clientY+2,window.innerHeight-220)+'px';
-  m.classList.add('open');
-  const t=turma(); const d=t?.desks.find(d=>d.id==did);
-  const has=!!d?.sid;
-  document.getElementById('ctxEdit').style.display=has?'':'none';
-  document.getElementById('ctxGroup').style.display=has?'':'none';
-  document.getElementById('ctxClear').style.display=has?'':'none';
-}
-function ctxAssign(){ const el=document.getElementById('d'+ctxDeskId); closeAll(); if(el){ const r=el.getBoundingClientRect(); openAssignPanel(ctxDeskId,{clientX:r.right,clientY:r.top}); }}
-function ctxEdit(){
-  const t=turma(); if(!t||!ctxDeskId) return;
-  const d=t.desks.find(d=>d.id==ctxDeskId);
-  const st=d?.sid?t.students.find(s=>s.id===d.sid):null;
-  if(!st){ closeAll(); return; }
-  const v=prompt('Nome do aluno:',st.name);
-  if(v&&v.trim()) st.name=v.trim();
-  closeAll(); renderClassroom(); renderSidebar();
-}
-function ctxGroup(){
-  const el=document.getElementById('d'+ctxDeskId); closeAll();
-  if(el){ const r=el.getBoundingClientRect(); openGroupPanel(ctxDeskId,{clientX:r.right,clientY:r.top}); }
-}
-function ctxClear(){
-  const t=turma(); if(!t||!ctxDeskId) return;
-  const d=t.desks.find(d=>d.id==ctxDeskId); if(d){ d.sid=null; d.gid=null; }
-  closeAll(); renderClassroom(); renderSidebar();
-}
-function ctxRemove(){
-  const t=turma(); if(!t||!ctxDeskId) return;
-  if(!confirm('Remover esta secretária?')){ closeAll(); return; }
-  t.desks=t.desks.filter(d=>d.id!=ctxDeskId);
-  closeAll(); renderClassroom(); renderSidebar();
-}
-
-function clearDesk(e,did){
-  e.stopPropagation();
-  const t=turma(); if(!t) return;
-  const d=t.desks.find(d=>d.id==did); if(d){ d.sid=null; d.gid=null; }
-  renderClassroom(); renderSidebar();
-}
-
-// ════ MODE ════
-const HINTS={edit:'Arraste alunos para as secretárias | Duplo-clique para editar nome | Botão direito para mais opções',assign:'Clique em qualquer secretária para atribuir um aluno',group:'Clique numa secretária com aluno para definir o grupo'};
-function setMode(m){
-  mode=m;
-  ['edit','assign','group'].forEach(id=>document.getElementById('mode'+id.charAt(0).toUpperCase()+id.slice(1)).classList.toggle('active',id===m));
-  document.getElementById('modeHint').textContent=HINTS[m]||'';
-  renderClassroom();
-}
-
-// ════ AUTO-ASSIGN ════
-function autoAssign(){
-  const t=turma(); if(!t) return;
-  if(!t.students.length){ toast('Adicione alunos primeiro'); return; }
-  const desks=t.desks; const ss=[...t.students];
-  for(let i=ss.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [ss[i],ss[j]]=[ss[j],ss[i]]; }
-  desks.forEach(d=>{ d.sid=null; d.gid=null; });
-  ss.forEach((s,i)=>{ if(desks[i]) desks[i].sid=s.id; });
-  renderClassroom(); renderSidebar();
-  toast(`${Math.min(ss.length,desks.length)} alunos distribuídos aleatoriamente 🔀`);
-}
-function clearAll(){
-  const t=turma(); if(!t) return;
-  if(!confirm('Limpar todas as secretárias?')) return;
-  t.desks.forEach(d=>{ d.sid=null; d.gid=null; });
-  renderClassroom(); renderSidebar(); toast('Secretárias limpas');
-}
-
-// ════ EXPORT / IMPORT ════
-function exportData(){
-  const b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
-  const u=URL.createObjectURL(b);
-  const a=document.createElement('a'); a.href=u; a.download='planta-sala.json'; a.click();
-  URL.revokeObjectURL(u); toast('Dados exportados');
-}
-function importData(ev){
-  const f=ev.target.files[0]; if(!f) return;
-  const r=new FileReader();
-  r.onload=e=>{
-    try{
-      const d=JSON.parse(e.target.result);
-      if(!d.turmas||!Array.isArray(d.turmas)) throw new Error('Formato inválido');
-      if(confirm(`Importar ${d.turmas.length} turma(s)? Os dados atuais serão substituídos.`)){
-        state=d; state.activeId=state.turmas[0]?.id||null; render(); toast('Importado com sucesso ✓');
+function updateDeskType() {
+  state.deskType = document.getElementById('desk-type').value;
+  // Convert all desks
+  state.desks.forEach(d => {
+    if (d.type !== state.deskType) {
+      if (state.deskType === 'pair' && d.students.length === 1) {
+        d.students.push(null);
+      } else if (state.deskType === 'single' && d.students.length === 2) {
+        if (d.students[1] !== null) {
+          const s = state.students.find(st => st.id === d.students[1]);
+          if (s) { s.deskId = null; s.seatIndex = null; }
+        }
+        d.students = [d.students[0]];
       }
-    }catch(err){ alert('Erro: '+err.message); }
-    ev.target.value='';
-  };
-  r.readAsText(f);
-}
-
-// ════ PRINT ════
-function printPlan(){
-  const t=turma(); if(!t){ toast('Nenhuma turma selecionada'); return; }
-  window.print();
-}
-
-// ════ TOAST ════
-function toast(msg,ms=2800){
-  const c=document.getElementById('toasts');
-  const el=document.createElement('div'); el.className='toast-msg'; el.textContent=msg;
-  c.appendChild(el); setTimeout(()=>el.remove(),ms);
-}
-
-// ════ CLOSE ALL POPOVERS ════
-function closeAll(){
-  document.getElementById('assignPanel').classList.remove('open');
-  document.getElementById('groupPanel').classList.remove('open');
-  document.getElementById('ctxMenu').classList.remove('open');
-  assignDeskId=null; ctxDeskId=null;
-}
-document.addEventListener('click',e=>{
-  if(!document.getElementById('assignPanel').contains(e.target)&&
-     !document.getElementById('groupPanel').contains(e.target)&&
-     !document.getElementById('ctxMenu').contains(e.target)) closeAll();
-});
-document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeAll(); });
-
-// ════ ESCAPE ════
-function x(s){ if(!s) return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-
-// ════ THEME TOGGLE ════
-(function(){
-  const btn=document.getElementById('themeToggle');
-  const html=document.documentElement;
-  let d=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
-  html.setAttribute('data-theme',d);
-  const moonSvg='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
-  const sunSvg='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
-  btn.innerHTML=d==='dark'?sunSvg:moonSvg;
-  btn.addEventListener('click',()=>{
-    d=d==='dark'?'light':'dark';
-    html.setAttribute('data-theme',d);
-    btn.innerHTML=d==='dark'?sunSvg:moonSvg;
+      d.type = state.deskType;
+    }
   });
-})();
 
+  // Re-layout
+  const activeEl = document.querySelector('.layout-option.active');
+  const layout = activeEl ? activeEl.dataset.layout : 'rows';
+  positionDesks(layout);
+  renderDesks();
+  renderStudents();
+}
+
+// ===================== TOOLBAR =====================
+function shuffleStudents() {
+  const seated = state.students.filter(s => s.deskId !== null);
+  if (seated.length < 2) return;
+
+  // Collect all seat positions
+  const positions = seated.map(s => ({ deskId: s.deskId, seatIndex: s.seatIndex }));
+
+  // Shuffle positions
+  for (let i = positions.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [positions[i], positions[j]] = [positions[j], positions[i]];
+  }
+
+  // Clear all desks
+  state.desks.forEach(d => d.students = d.students.map(() => null));
+
+  // Reassign
+  seated.forEach((s, i) => {
+    const pos = positions[i];
+    s.deskId = pos.deskId;
+    s.seatIndex = pos.seatIndex;
+    const desk = state.desks.find(d => d.id === pos.deskId);
+    if (desk) desk.students[pos.seatIndex] = s.id;
+  });
+
+  renderDesks();
+  renderStudents();
+  toast('Alunos baralhados!');
+}
+
+function autoAssign() {
+  const unseated = state.students.filter(s => s.deskId === null);
+  let assigned = 0;
+
+  for (const s of unseated) {
+    // Find first empty seat
+    let found = false;
+    for (const d of state.desks) {
+      for (let si = 0; si < d.students.length; si++) {
+        if (d.students[si] === null) {
+          d.students[si] = s.id;
+          s.deskId = d.id;
+          s.seatIndex = si;
+          assigned++;
+          found = true;
+          break;
+        }
+      }
+      if (found) break;
+    }
+  }
+
+  renderDesks();
+  renderStudents();
+  toast(assigned + ' alunos atribuídos automaticamente');
+}
+
+// ===================== ZOOM =====================
+function changeZoom(delta) {
+  state.zoom = Math.max(0.4, Math.min(1.5, state.zoom + delta));
+  state.zoom = Math.round(state.zoom * 10) / 10;
+  applyZoom();
+}
+
+function applyZoom() {
+  const classroom = document.getElementById('classroom');
+  classroom.style.transform = `scale(${state.zoom})`;
+  document.getElementById('zoom-level').textContent = Math.round(state.zoom * 100) + '%';
+}
+
+// ===================== PRINT =====================
+function printLayout() {
+  const name = document.getElementById('room-name').value || 'Sala de Aula';
+  document.getElementById('print-title').textContent = name;
+  document.getElementById('print-date').textContent = new Date().toLocaleDateString('pt-PT', {
+    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+  });
+
+  const groupsDiv = document.getElementById('print-groups');
+  if (state.groups.length > 0) {
+    groupsDiv.innerHTML = '<h4>Grupos de Trabalho</h4>' +
+      state.groups.map(g => {
+        const members = state.students.filter(s => s.groupId === g.id);
+        return `<div style="margin-bottom:8px;">
+          <strong style="border-bottom:2px solid ${g.color};padding-bottom:2px;">${esc(g.name)}</strong><br>
+          ${members.map(m => `<span class="print-group-item" style="border-color:${g.color}">${esc(m.name)}</span>`).join(' ')}
+        </div>`;
+      }).join('');
+  } else {
+    groupsDiv.innerHTML = '';
+  }
+
+  const total = state.students.length;
+  const seated = state.students.filter(s => s.deskId !== null).length;
+  document.getElementById('print-footer-text').textContent =
+    `Total de alunos: ${total} | Sentados: ${seated} | Gerado em ${new Date().toLocaleString('pt-PT')}`;
+
+  const classroom = document.getElementById('classroom');
+  const origTransform = classroom.style.transform;
+  classroom.style.transform = 'none';
+  window.print();
+  classroom.style.transform = origTransform;
+}
+
+// ===================== SAVE / LOAD =====================
+function exportData() {
+  state.roomName = document.getElementById('room-name').value;
+  const json = JSON.stringify(state, null, 2);
+  const blob = new Blob([json], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = (state.roomName || 'planta-sala').replace(/\s+/g, '-') + '.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('Ficheiro guardado!');
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    try {
+      const data = JSON.parse(e.target.result);
+      state = data;
+      document.getElementById('room-name').value = state.roomName || '';
+      document.getElementById('room-width').value = state.roomWidth;
+      document.getElementById('room-height').value = state.roomHeight;
+      document.getElementById('desk-count').value = state.desks.length;
+      document.getElementById('desk-type').value = state.deskType || 'pair';
+      updateRoomSize();
+      renderDesks();
+      renderStudents();
+      renderGroups();
+      toast('Planta carregada com sucesso!');
+    } catch (err) {
+      toast('Erro ao carregar ficheiro');
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function clearAll() {
+  if (!confirm('Tem a certeza que deseja limpar tudo?')) return;
+  state.students = [];
+  state.desks = [];
+  state.groups = [];
+  state.nextId = 1;
+  renderDesks();
+  renderStudents();
+  renderGroups();
+  toast('Tudo limpo');
+}
+
+// Close modals on overlay click
+document.getElementById('assign-modal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('assign-modal')) closeAssignModal();
+});
+document.getElementById('group-modal').addEventListener('click', (e) => {
+  if (e.target === document.getElementById('group-modal')) closeGroupModal();
+});
+
+// Touch support
+document.addEventListener('touchmove', (e) => {
+  if (!deskDragState) return;
+  const touch = e.touches[0];
+  onDeskDragMove({ clientX: touch.clientX, clientY: touch.clientY });
+  e.preventDefault();
+}, { passive: false });
+
+document.addEventListener('touchend', () => { if (deskDragState) onDeskDragEnd(); });
+
+document.getElementById('classroom').addEventListener('touchstart', (e) => {
+  const deskEl = e.target.closest('.desk');
+  if (!deskEl || e.target.classList.contains('desk-remove')) return;
+  const id = parseInt(deskEl.dataset.deskId);
+  const touch = e.touches[0];
+  startDeskDrag({ clientX: touch.clientX, clientY: touch.clientY, preventDefault: () => {} }, id);
+});
+
+// ===================== BOOT =====================
 init();
 </script>
 </body>
