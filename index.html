@@ -1,0 +1,939 @@
+<!DOCTYPE html>
+<html lang="pt" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Planta de Sala de Aula</title>
+<link href="https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,600,700&display=swap" rel="stylesheet">
+<style>
+/* ═══ DESIGN TOKENS ═══ */
+:root, [data-theme="light"] {
+  --color-bg:#f7f6f2; --color-surface:#f9f8f5; --color-surface-2:#fbfbf9;
+  --color-surface-offset:#f3f0ec; --color-surface-dynamic:#e6e4df;
+  --color-divider:#dcd9d5; --color-border:#d4d1ca;
+  --color-text:#28251d; --color-text-muted:#7a7974; --color-text-faint:#bab9b4;
+  --color-text-inverse:#f9f8f4;
+  --color-primary:#01696f; --color-primary-hover:#0c4e54; --color-primary-active:#0f3638;
+  --color-primary-highlight:#cedcd8;
+  --color-error:#a12c7b; --color-success:#437a22; --color-warning:#964219;
+  --radius-sm:0.375rem; --radius-md:0.5rem; --radius-lg:0.75rem; --radius-xl:1rem; --radius-full:9999px;
+  --shadow-sm:0 1px 3px oklch(0.2 0.01 80/0.07); --shadow-md:0 4px 14px oklch(0.2 0.01 80/0.09); --shadow-lg:0 12px 36px oklch(0.2 0.01 80/0.14);
+  --text-xs:clamp(0.75rem,0.7rem + 0.25vw,0.875rem);
+  --text-sm:clamp(0.875rem,0.8rem + 0.35vw,1rem);
+  --text-base:clamp(1rem,0.95rem + 0.25vw,1.125rem);
+  --text-lg:clamp(1.125rem,1rem + 0.75vw,1.5rem);
+  --s1:0.25rem;--s2:0.5rem;--s3:0.75rem;--s4:1rem;--s5:1.25rem;--s6:1.5rem;--s8:2rem;--s10:2.5rem;--s12:3rem;
+  --tr:180ms cubic-bezier(0.16,1,0.3,1);
+  --font:'Satoshi','Helvetica Neue',sans-serif;
+  --g1:#01696f;--g1b:#d4eeec;--g1t:#0f3638;
+  --g2:#964219;--g2b:#f0ddd2;--g2t:#4b2614;
+  --g3:#006494;--g3b:#cce0ed;--g3t:#0b3751;
+  --g4:#7a39bb;--g4b:#e3d6f5;--g4t:#431673;
+  --g5:#437a22;--g5b:#d5e8cc;--g5t:#1e3f0a;
+  --g6:#da7101;--g6b:#f5e3c8;--g6t:#ac3e00;
+  --g7:#a12c7b;--g7b:#f0d5e9;--g7t:#561740;
+  --g8:#d19900;--g8b:#f5edcc;--g8t:#8a5b00;
+}
+[data-theme="dark"] {
+  --color-bg:#171614;--color-surface:#1c1b19;--color-surface-2:#201f1d;
+  --color-surface-offset:#1d1c1a;--color-surface-dynamic:#2d2c2a;
+  --color-divider:#262523;--color-border:#393836;
+  --color-text:#cdccca;--color-text-muted:#797876;--color-text-faint:#5a5957;
+  --color-text-inverse:#2b2a28;
+  --color-primary:#4f98a3;--color-primary-hover:#227f8b;--color-primary-active:#1a626b;
+  --color-primary-highlight:#313b3b;
+  --color-error:#d163a7;--color-success:#6daa45;--color-warning:#bb653b;
+  --shadow-sm:0 1px 3px oklch(0 0 0/0.22);--shadow-md:0 4px 14px oklch(0 0 0/0.32);--shadow-lg:0 12px 36px oklch(0 0 0/0.44);
+  --g1b:#1d3535;--g2b:#3a2010;--g3b:#102030;--g4b:#2a1a45;
+  --g5b:#1a2f0d;--g6b:#3a2000;--g7b:#3a0d28;--g8b:#3a2f00;
+  --g1t:#7dcfca;--g2t:#e8945a;--g3t:#7ab8d6;--g4t:#c198f0;
+  --g5t:#8ec95a;--g6t:#fcbf6a;--g7t:#e07ab8;--g8t:#f0c84a;
+}
+@media(prefers-color-scheme:dark){:root:not([data-theme]){
+  --color-bg:#171614;--color-surface:#1c1b19;--color-surface-2:#201f1d;
+  --color-surface-offset:#1d1c1a;--color-divider:#262523;--color-border:#393836;
+  --color-text:#cdccca;--color-text-muted:#797876;--color-text-faint:#5a5957;
+  --color-text-inverse:#2b2a28;--color-primary:#4f98a3;--color-primary-hover:#227f8b;
+  --color-primary-highlight:#313b3b;
+}}
+
+/* ═══ BASE ═══ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;height:100%;overflow:hidden;}
+body{font-family:var(--font);font-size:var(--text-sm);color:var(--color-text);background:var(--color-bg);height:100dvh;overflow:hidden;display:flex;flex-direction:column;}
+button{cursor:pointer;background:none;border:none;font-family:inherit;color:inherit;}
+input,select,textarea{font-family:inherit;color:inherit;}
+:focus-visible{outline:2px solid var(--color-primary);outline-offset:2px;border-radius:var(--radius-sm);}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{transition-duration:.01ms!important;animation-duration:.01ms!important;}}
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-thumb{background:var(--color-border);border-radius:3px;}
+::-webkit-scrollbar-track{background:transparent;}
+
+/* ═══ LAYOUT ═══ */
+.app{display:grid;grid-template-columns:270px 1fr;grid-template-rows:50px 1fr;height:100dvh;}
+
+/* HEADER */
+.header{grid-column:1/-1;display:flex;align-items:center;gap:var(--s3);padding:0 var(--s4);background:var(--color-surface);border-bottom:1px solid var(--color-border);z-index:20;}
+.logo{display:flex;align-items:center;gap:var(--s2);font-size:var(--text-base);font-weight:700;color:var(--color-primary);flex-shrink:0;margin-right:var(--s2);}
+.turma-btn{font-weight:600;font-size:var(--text-base);padding:var(--s1) var(--s2);border-radius:var(--radius-sm);transition:background var(--tr);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.turma-btn:hover{background:var(--color-surface-offset);}
+.header-actions{display:flex;align-items:center;gap:var(--s2);margin-left:auto;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:var(--s1);padding:5px var(--s3);border-radius:var(--radius-md);font-size:var(--text-sm);font-weight:500;transition:background var(--tr),color var(--tr),box-shadow var(--tr);white-space:nowrap;line-height:1.4;}
+.btn-primary{background:var(--color-primary);color:var(--color-text-inverse);}
+.btn-primary:hover{background:var(--color-primary-hover);box-shadow:var(--shadow-sm);}
+.btn-ghost{color:var(--color-text-muted);border:1px solid transparent;}
+.btn-ghost:hover{background:var(--color-surface-offset);border-color:var(--color-border);color:var(--color-text);}
+.btn-sm{padding:3px var(--s2);font-size:var(--text-xs);}
+.btn-icon{padding:0;width:30px;height:30px;display:inline-flex;align-items:center;justify-content:center;border-radius:var(--radius-md);}
+.btn-icon:hover{background:var(--color-surface-offset);}
+.btn-danger{color:var(--color-error);}
+.btn-danger:hover{background:oklch(from var(--color-error) l c h/0.1);}
+
+/* SIDEBAR */
+.sidebar{background:var(--color-surface);border-right:1px solid var(--color-border);overflow-y:auto;overscroll-behavior:contain;display:flex;flex-direction:column;}
+.sb-section{padding:var(--s4);border-bottom:1px solid var(--color-divider);}
+.sb-section:last-child{border-bottom:none;flex:1;}
+.sb-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:var(--s3);}
+.sb-title{font-size:var(--text-xs);font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--color-text-muted);}
+
+/* TURMAS */
+.turma-row{display:flex;align-items:center;gap:var(--s2);padding:6px var(--s3);border-radius:var(--radius-md);cursor:pointer;font-size:var(--text-sm);transition:background var(--tr);position:relative;}
+.turma-row:hover{background:var(--color-surface-offset);}
+.turma-row.active{background:var(--color-primary-highlight);font-weight:600;}
+.turma-row.active .turma-row-name{color:var(--color-primary);}
+.turma-count{margin-left:auto;font-size:var(--text-xs);color:var(--color-text-faint);background:var(--color-surface-dynamic);padding:1px 6px;border-radius:var(--radius-full);}
+.turma-del{display:none;color:var(--color-error);padding:2px 5px;border-radius:var(--radius-sm);font-size:12px;}
+.turma-row:hover .turma-del{display:flex;}
+.turma-del:hover{background:oklch(from var(--color-error) l c h/0.1);}
+
+/* STUDENTS */
+.student-pool{display:flex;flex-direction:column;gap:4px;max-height:190px;overflow-y:auto;}
+.chip{display:flex;align-items:center;gap:var(--s2);padding:5px var(--s2);border-radius:var(--radius-md);font-size:var(--text-sm);cursor:grab;background:var(--color-surface-2);border:1px solid var(--color-border);transition:background var(--tr),box-shadow var(--tr);user-select:none;}
+.chip:hover{background:var(--color-surface-offset);box-shadow:var(--shadow-sm);}
+.chip.dragging{opacity:.4;}
+.chip.seated{opacity:.45;font-style:italic;}
+.gdot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.chip-del{display:none;margin-left:auto;color:var(--color-text-faint);padding:1px 4px;border-radius:var(--radius-sm);font-size:12px;}
+.chip:hover .chip-del{display:flex;}
+.chip-del:hover{color:var(--color-error);background:oklch(from var(--color-error) l c h/0.1);}
+.pool-empty{font-size:var(--text-xs);color:var(--color-text-faint);text-align:center;padding:var(--s3);}
+
+/* GROUPS */
+.groups-list{display:flex;flex-direction:column;gap:var(--s2);}
+.group-row{display:flex;align-items:center;gap:var(--s2);padding:6px var(--s3);border-radius:var(--radius-md);cursor:pointer;font-size:var(--text-sm);transition:filter var(--tr);}
+.group-row:hover{filter:brightness(.97);}
+.gswatch{width:12px;height:12px;border-radius:3px;flex-shrink:0;}
+.gname-input{background:none;border:none;font-size:var(--text-sm);font-weight:600;flex:1;cursor:pointer;}
+.gname-input:focus{outline:none;}
+.gcount{font-size:var(--text-xs);opacity:.7;margin-left:auto;}
+.group-del{display:none;padding:1px 5px;border-radius:var(--radius-sm);font-size:12px;}
+.group-row:hover .group-del{display:flex;}
+.group-del:hover{color:var(--color-error);background:oklch(from var(--color-error) l c h/0.1);}
+
+/* MAIN */
+.main{overflow:auto;overscroll-behavior:contain;background:var(--color-bg);}
+
+/* TOOLBAR */
+.toolbar{position:sticky;top:0;z-index:10;display:flex;align-items:center;flex-wrap:wrap;gap:var(--s2);padding:6px var(--s4);background:var(--color-bg);border-bottom:1px solid var(--color-divider);}
+.tb-group{display:flex;align-items:center;gap:var(--s1);}
+.tb-div{width:1px;height:18px;background:var(--color-divider);margin:0 var(--s1);}
+.grid-ctrl{display:flex;align-items:center;gap:4px;font-size:var(--text-xs);color:var(--color-text-muted);}
+.grid-ctrl label{font-weight:600;}
+.grid-inp{width:38px;text-align:center;padding:2px 4px;border-radius:var(--radius-sm);border:1px solid var(--color-border);background:var(--color-surface);font-size:var(--text-xs);}
+.grid-adj{width:20px;height:20px;font-size:13px;display:inline-flex;align-items:center;justify-content:center;border-radius:var(--radius-sm);color:var(--color-text-muted);}
+.grid-adj:hover{background:var(--color-surface-offset);color:var(--color-text);}
+.mode-pill{display:flex;border-radius:var(--radius-full);background:var(--color-surface-offset);padding:2px;gap:1px;}
+.mode-btn{padding:3px 10px;border-radius:var(--radius-full);font-size:var(--text-xs);font-weight:500;color:var(--color-text-muted);transition:all var(--tr);}
+.mode-btn.active{background:var(--color-surface-2);color:var(--color-text);box-shadow:var(--shadow-sm);}
+.tb-hint{font-size:var(--text-xs);color:var(--color-text-faint);font-style:italic;}
+
+/* CLASSROOM */
+.classroom-wrap{padding:var(--s8);min-height:calc(100% - 45px);display:flex;flex-direction:column;align-items:center;}
+.teacher-zone{display:flex;flex-direction:column;align-items:center;gap:var(--s2);margin-bottom:var(--s8);width:100%;}
+.board-row{display:flex;align-items:center;gap:var(--s3);width:100%;max-width:500px;justify-content:center;}
+.board-line{height:2px;background:var(--color-divider);flex:1;max-width:120px;}
+.board-label{font-size:var(--text-xs);color:var(--color-text-faint);font-weight:500;}
+.teacher-desk{width:190px;height:54px;background:var(--color-primary);border-radius:var(--radius-lg);display:flex;align-items:center;justify-content:center;gap:var(--s2);color:var(--color-text-inverse);font-weight:700;font-size:var(--text-sm);box-shadow:var(--shadow-md);position:relative;}
+.teacher-desk::after{content:'';position:absolute;bottom:-11px;left:50%;transform:translateX(-50%);width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-top:11px solid var(--color-primary);}
+.down-label{font-size:var(--text-xs);color:var(--color-text-faint);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-top:var(--s2);}
+.student-grid{display:grid;gap:var(--s3);width:100%;max-width:950px;justify-content:center;}
+
+/* DESK */
+.desk{width:100px;min-height:74px;border-radius:var(--radius-lg);border:2px dashed var(--color-border);background:var(--color-surface);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:var(--s2) var(--s2) var(--s2);position:relative;transition:all var(--tr);cursor:default;}
+.desk.occupied{border-style:solid;border-color:var(--color-border);}
+.desk.occupied:hover{box-shadow:var(--shadow-sm);}
+.desk.drop-over{border-color:var(--color-primary);background:var(--color-primary-highlight);}
+.desk.selected{border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-primary-highlight);}
+.desk.dim{opacity:.28;}
+.desk-num{position:absolute;top:3px;left:6px;font-size:10px;color:var(--color-text-faint);font-variant-numeric:tabular-nums;}
+.desk-clear{position:absolute;top:2px;right:4px;font-size:13px;line-height:1;color:var(--color-text-faint);display:none;padding:2px 3px;border-radius:var(--radius-sm);transition:color var(--tr);}
+.desk:hover .desk-clear{display:flex;}
+.desk-clear:hover{color:var(--color-error);background:oklch(from var(--color-error) l c h/0.12);}
+.desk-name{font-size:var(--text-xs);font-weight:600;text-align:center;line-height:1.3;word-break:break-word;color:var(--color-text);}
+.desk-badge{font-size:10px;font-weight:700;padding:1px 7px;border-radius:var(--radius-full);margin-top:2px;white-space:nowrap;max-width:92px;overflow:hidden;text-overflow:ellipsis;}
+.desk-empty{font-size:10px;color:var(--color-text-faint);text-align:center;}
+.desk-name-inp{width:88px;font-size:var(--text-xs);text-align:center;border:1px solid var(--color-primary);border-radius:var(--radius-sm);padding:1px 4px;background:var(--color-surface);font-family:inherit;}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:var(--s12);color:var(--color-text-muted);}
+.empty-icon{font-size:42px;margin-bottom:var(--s4);}
+.empty-state h3{font-size:var(--text-base);font-weight:700;margin-bottom:var(--s2);color:var(--color-text);}
+.empty-state p{font-size:var(--text-sm);max-width:36ch;margin:0 auto var(--s4);}
+
+/* MODALS */
+.overlay{position:fixed;inset:0;z-index:100;background:oklch(.1 .01 80/.55);display:flex;align-items:center;justify-content:center;padding:var(--s4);opacity:0;pointer-events:none;transition:opacity var(--tr);}
+.overlay.open{opacity:1;pointer-events:all;}
+.modal{background:var(--color-surface-2);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);width:100%;max-width:480px;max-height:82vh;overflow-y:auto;padding:var(--s6);transform:translateY(6px);transition:transform var(--tr);}
+.overlay.open .modal{transform:translateY(0);}
+.modal-title{font-size:var(--text-base);font-weight:700;margin-bottom:var(--s4);display:flex;align-items:center;justify-content:space-between;}
+.modal-close{color:var(--color-text-muted);font-size:18px;line-height:1;padding:var(--s1);border-radius:var(--radius-sm);}
+.modal-close:hover{background:var(--color-surface-offset);color:var(--color-text);}
+.field{margin-bottom:var(--s4);}
+.field label{display:block;font-size:var(--text-xs);font-weight:700;margin-bottom:var(--s2);color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.05em;}
+.field input,.field textarea{width:100%;padding:var(--s2) var(--s3);border:1px solid var(--color-border);border-radius:var(--radius-md);background:var(--color-surface);font-size:var(--text-sm);transition:border-color var(--tr);}
+.field input:focus,.field textarea:focus{outline:none;border-color:var(--color-primary);box-shadow:0 0 0 3px var(--color-primary-highlight);}
+.field textarea{resize:vertical;min-height:130px;font-family:inherit;}
+.field-hint{font-size:var(--text-xs);color:var(--color-text-faint);margin-top:var(--s1);}
+.modal-foot{display:flex;justify-content:flex-end;gap:var(--s2);margin-top:var(--s4);}
+
+/* POPOVER (assign / group select) */
+.popover{position:fixed;z-index:200;background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);padding:var(--s2);min-width:200px;max-width:260px;display:none;flex-direction:column;gap:3px;}
+.popover.open{display:flex;}
+.popover-title{font-size:var(--text-xs);font-weight:700;color:var(--color-text-muted);text-transform:uppercase;letter-spacing:.05em;padding:4px var(--s2) var(--s2);}
+.pop-search{width:100%;padding:5px var(--s2);border:1px solid var(--color-border);border-radius:var(--radius-md);font-size:var(--text-xs);background:var(--color-surface);margin-bottom:4px;}
+.pop-list{overflow-y:auto;max-height:240px;display:flex;flex-direction:column;gap:2px;}
+.pop-item{display:flex;align-items:center;gap:var(--s2);padding:6px var(--s2);border-radius:var(--radius-sm);cursor:pointer;font-size:var(--text-sm);transition:background var(--tr);}
+.pop-item:hover{background:var(--color-surface-offset);}
+.pop-item.seated{color:var(--color-text-faint);}
+.pop-div{height:1px;background:var(--color-divider);margin:3px 0;}
+
+/* CTX MENU */
+.ctx{position:fixed;z-index:210;background:var(--color-surface-2);border:1px solid var(--color-border);border-radius:var(--radius-lg);box-shadow:var(--shadow-lg);padding:var(--s1);min-width:175px;display:none;}
+.ctx.open{display:block;}
+.ctx-item{display:flex;align-items:center;gap:var(--s2);padding:7px var(--s3);border-radius:var(--radius-md);font-size:var(--text-sm);cursor:pointer;transition:background var(--tr);}
+.ctx-item:hover{background:var(--color-surface-offset);}
+.ctx-item.danger{color:var(--color-error);}
+.ctx-item.danger:hover{background:oklch(from var(--color-error) l c h/.08);}
+.ctx-div{height:1px;background:var(--color-divider);margin:3px 0;}
+
+/* TOAST */
+.toasts{position:fixed;bottom:var(--s4);right:var(--s4);z-index:300;display:flex;flex-direction:column;gap:var(--s2);pointer-events:none;}
+.toast-msg{background:var(--color-text);color:var(--color-bg);padding:7px var(--s4);border-radius:var(--radius-md);font-size:var(--text-sm);font-weight:500;box-shadow:var(--shadow-md);animation:toastIn .18s ease;}
+@keyframes toastIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+
+/* PRINT */
+@media print{
+  .header,.sidebar,.toolbar,.toasts,.overlay,.ctx,.popover{display:none!important;}
+  .app{display:block!important;height:auto!important;}
+  .main{overflow:visible!important;}
+  .classroom-wrap{padding:12px!important;}
+  .desk-clear{display:none!important;}
+  .desk{border-style:solid!important;border-color:#ccc!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .teacher-desk{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .desk-badge{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .print-legend{display:block!important;}
+  .student-grid{gap:8px!important;}
+  .print-header{display:block!important;}
+}
+.print-header{display:none;font-size:13px;font-weight:700;margin-bottom:12px;text-align:center;letter-spacing:.05em;}
+.print-legend{display:none;margin-top:20px;}
+.print-legend-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:#555;margin-bottom:6px;}
+.print-legend-items{display:flex;flex-wrap:wrap;gap:8px;}
+.print-legend-item{display:flex;align-items:center;gap:4px;font-size:11px;}
+.print-swatch{width:12px;height:12px;border-radius:3px;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo">
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none" aria-label="PlantaSala">
+        <rect x="1" y="1" width="24" height="24" rx="5" fill="var(--color-primary)" opacity=".15"/>
+        <rect x="4" y="5" width="8" height="5" rx="1.5" fill="var(--color-primary)" opacity=".75"/>
+        <rect x="14" y="5" width="8" height="5" rx="1.5" fill="var(--color-primary)" opacity=".75"/>
+        <rect x="4" y="12" width="8" height="5" rx="1.5" fill="var(--color-primary)" opacity=".75"/>
+        <rect x="14" y="12" width="8" height="5" rx="1.5" fill="var(--color-primary)" opacity=".75"/>
+        <rect x="4" y="19" width="8" height="4" rx="1.5" fill="var(--color-primary)" opacity=".75"/>
+        <rect x="14" y="19" width="8" height="4" rx="1.5" fill="var(--color-primary)" opacity=".75"/>
+        <rect x="7" y="0" width="12" height="3.5" rx="1.75" fill="var(--color-primary)"/>
+      </svg>
+      PlantaSala
+    </div>
+    <button class="turma-btn" id="hdrTurmaName" onclick="openModal('modalRenameTurma')">—</button>
+    <div class="header-actions">
+      <button class="btn btn-ghost btn-sm" onclick="exportData()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        Exportar
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="document.getElementById('importFile').click()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><line x1="12" y1="3" x2="12" y2="15"/><polyline points="7 8 12 3 17 8"/></svg>
+        Importar
+      </button>
+      <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+      <button class="btn btn-ghost btn-sm" onclick="printPlan()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Imprimir
+      </button>
+      <button class="btn-icon" id="themeToggle" data-theme-toggle aria-label="Alternar tema">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sb-section">
+      <div class="sb-header">
+        <span class="sb-title">Turmas</span>
+        <button class="btn btn-ghost btn-sm" onclick="openModal('modalNewTurma')">+ Nova</button>
+      </div>
+      <div id="turmasList"></div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-header">
+        <span class="sb-title">Alunos</span>
+        <button class="btn btn-ghost btn-sm" onclick="openModal('modalAddStudents')">+ Adicionar</button>
+      </div>
+      <div class="student-pool" id="studentPool"></div>
+      <div class="pool-empty" id="poolEmpty" style="display:none">Todos os alunos estão sentados ✓</div>
+    </div>
+    <div class="sb-section">
+      <div class="sb-header">
+        <span class="sb-title">Grupos</span>
+        <button class="btn btn-ghost btn-sm" onclick="createGroup()">+ Grupo</button>
+      </div>
+      <div class="groups-list" id="groupsList"></div>
+    </div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="main">
+    <div class="toolbar">
+      <div class="tb-group">
+        <div class="grid-ctrl">
+          <label>Colunas</label>
+          <button class="grid-adj" onclick="adjustGrid('c',-1)">−</button>
+          <input class="grid-inp" type="number" id="gCols" value="4" min="1" max="12" onchange="applyGrid()">
+          <button class="grid-adj" onclick="adjustGrid('c',1)">+</button>
+        </div>
+        <div class="tb-div"></div>
+        <div class="grid-ctrl">
+          <label>Linhas</label>
+          <button class="grid-adj" onclick="adjustGrid('r',-1)">−</button>
+          <input class="grid-inp" type="number" id="gRows" value="5" min="1" max="15" onchange="applyGrid()">
+          <button class="grid-adj" onclick="adjustGrid('r',1)">+</button>
+        </div>
+      </div>
+      <div class="tb-div"></div>
+      <div class="mode-pill">
+        <button class="mode-btn active" id="modeEdit" onclick="setMode('edit')">✏️ Editar</button>
+        <button class="mode-btn" id="modeAssign" onclick="setMode('assign')">🎯 Atribuir</button>
+        <button class="mode-btn" id="modeGroup" onclick="setMode('group')">🎨 Grupos</button>
+      </div>
+      <div class="tb-div"></div>
+      <button class="btn btn-ghost btn-sm" onclick="autoAssign()">🔀 Distribuir</button>
+      <button class="btn btn-ghost btn-sm" onclick="clearAll()">🗑 Limpar</button>
+      <span class="tb-hint" id="modeHint">Arraste alunos para as secretárias</span>
+    </div>
+    <div class="classroom-wrap" id="classroomWrap"></div>
+  </main>
+</div>
+
+<!-- MODALS -->
+<div class="overlay" id="modalNewTurma" onclick="closeBg(event,'modalNewTurma')">
+  <div class="modal">
+    <div class="modal-title">Nova Turma <button class="modal-close" onclick="closeModal('modalNewTurma')">✕</button></div>
+    <div class="field"><label>Nome da turma</label><input type="text" id="inpNewTurma" placeholder="ex: 8ºA, Turma B…" onkeydown="if(event.key==='Enter')doNewTurma()"></div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modalNewTurma')">Cancelar</button><button class="btn btn-primary" onclick="doNewTurma()">Criar</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="modalRenameTurma" onclick="closeBg(event,'modalRenameTurma')">
+  <div class="modal">
+    <div class="modal-title">Renomear Turma <button class="modal-close" onclick="closeModal('modalRenameTurma')">✕</button></div>
+    <div class="field"><label>Novo nome</label><input type="text" id="inpRenameTurma" onkeydown="if(event.key==='Enter')doRenameTurma()"></div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modalRenameTurma')">Cancelar</button><button class="btn btn-primary" onclick="doRenameTurma()">Guardar</button></div>
+  </div>
+</div>
+
+<div class="overlay" id="modalAddStudents" onclick="closeBg(event,'modalAddStudents')">
+  <div class="modal">
+    <div class="modal-title">Adicionar Alunos <button class="modal-close" onclick="closeModal('modalAddStudents')">✕</button></div>
+    <div class="field">
+      <label>Lista de alunos (um por linha)</label>
+      <textarea id="inpStudents" placeholder="Ana Silva&#10;Bruno Costa&#10;Carla Mendes&#10;…"></textarea>
+      <div class="field-hint">Cole ou escreva um nome por linha. Nomes duplicados são ignorados.</div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" onclick="closeModal('modalAddStudents')">Cancelar</button><button class="btn btn-primary" onclick="doAddStudents()">Adicionar</button></div>
+  </div>
+</div>
+
+<!-- Assign panel -->
+<div class="popover" id="assignPanel">
+  <div class="popover-title">Atribuir aluno</div>
+  <input class="pop-search" type="text" id="assignSearch" placeholder="Pesquisar…" oninput="renderAssignList()">
+  <div class="pop-list" id="assignList"></div>
+</div>
+
+<!-- Group select popover -->
+<div class="popover" id="groupPanel" style="min-width:170px;">
+  <div class="popover-title">Definir grupo</div>
+  <div class="pop-list" id="groupPanelList"></div>
+</div>
+
+<!-- Context Menu -->
+<div class="ctx" id="ctxMenu">
+  <div class="ctx-item" id="ctxAssign" onclick="ctxAssign()">👤 Atribuir aluno</div>
+  <div class="ctx-item" id="ctxEdit" onclick="ctxEdit()">✏️ Editar nome</div>
+  <div class="ctx-item" id="ctxGroup" onclick="ctxGroup()">🎨 Definir grupo</div>
+  <div class="ctx-div"></div>
+  <div class="ctx-item danger" id="ctxClear" onclick="ctxClear()">🗑 Limpar secretária</div>
+  <div class="ctx-item danger" onclick="ctxRemove()">✕ Remover secretária</div>
+</div>
+
+<div class="toasts" id="toasts"></div>
+
+<script>
+// ════ DATA ════
+const GC = [
+  {c:'#01696f',b:'var(--g1b)',t:'var(--g1t)',n:'Verde-azulado'},
+  {c:'#964219',b:'var(--g2b)',t:'var(--g2t)',n:'Terracota'},
+  {c:'#006494',b:'var(--g3b)',t:'var(--g3t)',n:'Azul'},
+  {c:'#7a39bb',b:'var(--g4b)',t:'var(--g4t)',n:'Roxo'},
+  {c:'#437a22',b:'var(--g5b)',t:'var(--g5t)',n:'Verde'},
+  {c:'#da7101',b:'var(--g6b)',t:'var(--g6t)',n:'Laranja'},
+  {c:'#a12c7b',b:'var(--g7b)',t:'var(--g7t)',n:'Rosa'},
+  {c:'#d19900',b:'var(--g8b)',t:'var(--g8t)',n:'Dourado'},
+];
+
+let state = { turmas:[], activeId:null };
+let mode = 'edit';
+let activeGroupFilter = null;
+let ctxDeskId = null;
+let assignDeskId = null;
+let dragSid = null;
+let uid = Date.now();
+function nid(){ return ++uid; }
+
+function turma(){ return state.turmas.find(t=>t.id===state.activeId)||null; }
+
+// ════ INIT ════
+function init(){
+  const t = mkTurma('8ºA');
+  t.students = [
+    {id:nid(),name:'Ana Silva'},{id:nid(),name:'Bruno Costa'},{id:nid(),name:'Carla Mendes'},
+    {id:nid(),name:'David Lopes'},{id:nid(),name:'Eva Martins'},{id:nid(),name:'Filipe Sousa'},
+    {id:nid(),name:'Gina Reis'},{id:nid(),name:'Hugo Nunes'},{id:nid(),name:'Inês Faria'},
+    {id:nid(),name:'João Pinto'},{id:nid(),name:'Lara Teixeira'},{id:nid(),name:'Miguel Santos'},
+    {id:nid(),name:'Nádia Barros'},{id:nid(),name:'Oscar Leite'},{id:nid(),name:'Paula Vaz'},
+  ];
+  t.groups = [
+    {id:'g1',name:'Grupo 1',ci:0},{id:'g2',name:'Grupo 2',ci:2},{id:'g3',name:'Grupo 3',ci:4},
+  ];
+  t.desks.slice(0,5).forEach(d=>{ d.sid=t.students[t.desks.indexOf(d)]?.id||null; d.gid='g1'; });
+  t.desks.slice(5,10).forEach(d=>{ d.sid=t.students[t.desks.indexOf(d)]?.id||null; d.gid='g2'; });
+  t.desks.slice(10,15).forEach(d=>{ d.sid=t.students[t.desks.indexOf(d)]?.id||null; d.gid='g3'; });
+  t.desks.forEach((d,i)=>{ d.sid=t.students[i]?.id||null; });
+  state.turmas.push(t); state.activeId=t.id;
+  render();
+}
+
+function mkTurma(name){
+  const id=nid(), cols=4, rows=5;
+  const desks=[];
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) desks.push({id:nid(),r,c,sid:null,gid:null});
+  return {id,name,students:[],groups:[],grid:{cols,rows},desks};
+}
+
+// ════ RENDER ════
+function render(){ renderTurmas(); renderSidebar(); renderClassroom(); updateHeader(); }
+function updateHeader(){
+  const t=turma();
+  document.getElementById('hdrTurmaName').textContent = t?t.name:'—';
+}
+
+function renderTurmas(){
+  const el=document.getElementById('turmasList');
+  if(!state.turmas.length){
+    el.innerHTML='<div class="pool-empty">Sem turmas. Crie uma.</div>'; return;
+  }
+  el.innerHTML=state.turmas.map(t=>{
+    const a=t.id===state.activeId?' active':'';
+    const n=t.students.length;
+    return `<div class="turma-row${a}" onclick="selTurma(${t.id})">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span class="turma-row-name">${x(t.name)}</span>
+      <span class="turma-count">${n}</span>
+      <button class="turma-del" onclick="delTurma(event,${t.id})" title="Eliminar">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function renderSidebar(){
+  const t=turma();
+  const pool=document.getElementById('studentPool');
+  const poolEmpty=document.getElementById('poolEmpty');
+  const gList=document.getElementById('groupsList');
+  if(!t){ pool.innerHTML=''; poolEmpty.style.display='none'; gList.innerHTML=''; return; }
+
+  const seated=new Set(t.desks.filter(d=>d.sid).map(d=>d.sid));
+  const ss=[...t.students].sort((a,b)=>a.name.localeCompare(b.name,'pt'));
+  if(!ss.length){
+    pool.innerHTML='<div class="pool-empty">Sem alunos. Clique em + Adicionar.</div>';
+    poolEmpty.style.display='none';
+  } else {
+    const all=ss.every(s=>seated.has(s.id));
+    poolEmpty.style.display=all?'block':'none';
+    pool.innerHTML=ss.map(s=>{
+      const isSat=seated.has(s.id);
+      const dsk=isSat?t.desks.find(d=>d.sid===s.id):null;
+      const grp=dsk?.gid?t.groups.find(g=>g.id===dsk.gid):null;
+      const gc=grp?GC[grp.ci]:null;
+      return `<div class="chip${isSat?' seated':''}" draggable="true" data-sid="${s.id}"
+        ondragstart="chipDragStart(event,${s.id})" ondragend="chipDragEnd(event)">
+        <span class="gdot" style="background:${gc?gc.c:'transparent'};border:1px solid ${gc?gc.c:'var(--color-border)'}"></span>
+        <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${x(s.name)}</span>
+        <button class="chip-del" onclick="rmStudent(event,${s.id})" title="Remover">✕</button>
+      </div>`;
+    }).join('');
+  }
+
+  if(!t.groups.length){
+    gList.innerHTML='<div class="pool-empty">Sem grupos.</div>';
+  } else {
+    gList.innerHTML=t.groups.map(g=>{
+      const gc=GC[g.ci];
+      const cnt=t.desks.filter(d=>d.gid===g.id).length;
+      const hi=activeGroupFilter===g.id;
+      return `<div class="group-row${hi?' selected':''}" style="background:${gc.b};" onclick="hlGroup('${g.id}')">
+        <span class="gswatch" style="background:${gc.c}"></span>
+        <input class="gname-input" value="${x(g.name)}" style="color:${gc.t}"
+          onchange="renameGroup('${g.id}',this.value)" onclick="event.stopPropagation()">
+        <span class="gcount" style="color:${gc.t}">${cnt}👤</span>
+        <button class="group-del btn-danger" onclick="delGroup(event,'${g.id}')">✕</button>
+      </div>`;
+    }).join('');
+  }
+}
+
+function renderClassroom(){
+  const wrap=document.getElementById('classroomWrap');
+  const t=turma();
+  if(!t){
+    wrap.innerHTML=`<div class="empty-state">
+      <div class="empty-icon">🏫</div>
+      <h3>Nenhuma turma selecionada</h3>
+      <p>Crie ou selecione uma turma na barra lateral para começar.</p>
+      <button class="btn btn-primary" onclick="openModal('modalNewTurma')">+ Criar turma</button>
+    </div>`; return;
+  }
+  const {cols,rows}=t.grid;
+  document.getElementById('gCols').value=cols;
+  document.getElementById('gRows').value=rows;
+
+  let html=`<div class="print-header">${x(t.name)} — Planta de Sala</div>
+  <div class="teacher-zone">
+    <div class="board-row"><div class="board-line"></div><span class="board-label">▲ QUADRO</span><div class="board-line"></div></div>
+    <div class="teacher-desk">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      Secretária do Professor
+    </div>
+    <div class="down-label">↓ Alunos</div>
+  </div>
+  <div class="student-grid" id="sGrid" style="grid-template-columns:repeat(${cols},100px);">`;
+
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+    const d=t.desks.find(d=>d.r===r&&d.c===c);
+    if(d) html+=mkDesk(d,t,r*cols+c+1);
+    else html+=`<div style="width:100px;height:74px;"></div>`;
+  }
+  html+=`</div>`;
+
+  if(t.groups.length){
+    html+=`<div class="print-legend"><div class="print-legend-title">Grupos de Trabalho</div><div class="print-legend-items">`;
+    t.groups.forEach(g=>{
+      const gc=GC[g.ci];
+      html+=`<div class="print-legend-item"><div class="print-swatch" style="background:${gc.c}"></div><span>${x(g.name)}</span></div>`;
+    });
+    html+=`</div></div>`;
+  }
+
+  wrap.innerHTML=html;
+
+  t.desks.forEach(d=>{
+    const el=document.getElementById('d'+d.id); if(!el) return;
+    el.addEventListener('dragover',e=>{ e.preventDefault(); el.classList.add('drop-over'); });
+    el.addEventListener('dragleave',()=>el.classList.remove('drop-over'));
+    el.addEventListener('drop',e=>{ e.preventDefault(); el.classList.remove('drop-over'); dropToDesk(d.id,e); });
+    el.addEventListener('contextmenu',e=>{ e.preventDefault(); openCtx(d.id,e); });
+    el.addEventListener('click',e=>deskClick(d.id,e));
+    el.addEventListener('dblclick',e=>deskDblClick(d.id,e));
+    if(d.sid) el.setAttribute('draggable','true');
+    el.addEventListener('dragstart',e=>deskDragStart(e,d.id));
+    el.addEventListener('dragend',e=>deskDragEnd(e));
+  });
+}
+
+function mkDesk(d,t,num){
+  const st=d.sid?t.students.find(s=>s.id===d.sid):null;
+  const grp=d.gid?t.groups.find(g=>g.id===d.gid):null;
+  const gc=grp?GC[grp.ci]:null;
+  const bg=gc?`background:${gc.b};border-color:${gc.c};`:'';
+  const dimmed=activeGroupFilter&&activeGroupFilter!==d.gid&&d.gid?' dim':'';
+  let cls=`desk${st?' occupied':''}${dimmed}`;
+  return `<div class="${cls}" id="d${d.id}" data-did="${d.id}" style="${bg}">
+    <span class="desk-num">${num}</span>
+    <button class="desk-clear" onclick="clearDesk(event,'${d.id}')" title="Limpar">✕</button>
+    ${st
+      ?`<span class="desk-name">${x(st.name)}</span>`+(gc?`<span class="desk-badge" style="background:${gc.c};color:white;">${x(grp.name)}</span>`:'')
+      :`<span class="desk-empty">${mode==='assign'?'clique para atribuir':'vazio'}</span>`
+    }
+  </div>`;
+}
+
+// ════ TURMA CRUD ════
+function selTurma(id){ state.activeId=id; activeGroupFilter=null; render(); }
+function delTurma(e,id){
+  e.stopPropagation();
+  if(!confirm('Eliminar esta turma?')) return;
+  state.turmas=state.turmas.filter(t=>t.id!==id);
+  if(state.activeId===id) state.activeId=state.turmas[0]?.id||null;
+  render(); toast('Turma eliminada');
+}
+function openModal(id){
+  document.getElementById(id).classList.add('open');
+  const inp=document.getElementById(id).querySelector('input,textarea');
+  if(inp) setTimeout(()=>inp.focus(),60);
+  if(id==='modalRenameTurma'){ const t=turma(); if(t) document.getElementById('inpRenameTurma').value=t.name; }
+}
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function closeBg(e,id){ if(e.target.id===id) closeModal(id); }
+function doNewTurma(){
+  const v=document.getElementById('inpNewTurma').value.trim(); if(!v) return;
+  const t=mkTurma(v); state.turmas.push(t); state.activeId=t.id;
+  closeModal('modalNewTurma'); document.getElementById('inpNewTurma').value='';
+  render(); toast(`Turma "${v}" criada`);
+}
+function doRenameTurma(){
+  const v=document.getElementById('inpRenameTurma').value.trim(); if(!v) return;
+  const t=turma(); if(t) t.name=v;
+  closeModal('modalRenameTurma'); render();
+}
+
+// ════ STUDENT CRUD ════
+function doAddStudents(){
+  const t=turma(); if(!t) return;
+  const lines=document.getElementById('inpStudents').value.split('\n').map(l=>l.trim()).filter(Boolean);
+  const ex=new Set(t.students.map(s=>s.name.toLowerCase()));
+  let n=0;
+  lines.forEach(name=>{ if(!ex.has(name.toLowerCase())){ t.students.push({id:nid(),name}); ex.add(name.toLowerCase()); n++; }});
+  closeModal('modalAddStudents'); document.getElementById('inpStudents').value='';
+  render(); toast(`${n} aluno(s) adicionado(s)`);
+}
+function rmStudent(e,sid){
+  e.stopPropagation();
+  const t=turma(); if(!t) return;
+  t.students=t.students.filter(s=>s.id!==sid);
+  t.desks.forEach(d=>{ if(d.sid===sid){ d.sid=null; d.gid=null; }});
+  render();
+}
+
+// ════ GROUP CRUD ════
+function createGroup(){
+  const t=turma(); if(!t) return;
+  const used=new Set(t.groups.map(g=>g.ci));
+  const ci=[0,1,2,3,4,5,6,7].find(i=>!used.has(i))??t.groups.length%8;
+  t.groups.push({id:'g'+nid(),name:`Grupo ${t.groups.length+1}`,ci});
+  render();
+}
+function renameGroup(gid,v){
+  const t=turma(); if(!t) return;
+  const g=t.groups.find(g=>g.id===gid); if(g) g.name=v;
+  renderClassroom();
+}
+function delGroup(e,gid){
+  e.stopPropagation();
+  const t=turma(); if(!t) return;
+  t.desks.forEach(d=>{ if(d.gid===gid) d.gid=null; });
+  t.groups=t.groups.filter(g=>g.id!==gid);
+  if(activeGroupFilter===gid) activeGroupFilter=null;
+  render(); toast('Grupo eliminado');
+}
+function hlGroup(gid){
+  activeGroupFilter=activeGroupFilter===gid?null:gid;
+  renderClassroom();
+}
+
+// ════ GRID ════
+function adjustGrid(ax,d){
+  const t=turma(); if(!t) return;
+  if(ax==='c') t.grid.cols=Math.max(1,Math.min(12,t.grid.cols+d));
+  else t.grid.rows=Math.max(1,Math.min(15,t.grid.rows+d));
+  normDesks(t); render();
+}
+function applyGrid(){
+  const t=turma(); if(!t) return;
+  t.grid.cols=Math.max(1,Math.min(12,+document.getElementById('gCols').value||4));
+  t.grid.rows=Math.max(1,Math.min(15,+document.getElementById('gRows').value||5));
+  normDesks(t); renderClassroom();
+}
+function normDesks(t){
+  const {cols,rows}=t.grid;
+  const rem=t.desks.filter(d=>d.r>=rows||d.c>=cols);
+  const hasStudents=rem.some(d=>d.sid);
+  if(hasStudents&&!confirm(`Remover ${rem.length} secretária(s) com alunos?`)){
+    t.grid.cols=Math.max(...t.desks.map(d=>d.c))+1;
+    t.grid.rows=Math.max(...t.desks.map(d=>d.r))+1;
+    return;
+  }
+  t.desks=t.desks.filter(d=>d.r<rows&&d.c<cols);
+  for(let r=0;r<rows;r++) for(let c=0;c<cols;c++){
+    if(!t.desks.find(d=>d.r===r&&d.c===c)) t.desks.push({id:nid(),r,c,sid:null,gid:null});
+  }
+}
+
+// ════ DRAG & DROP ════
+function chipDragStart(e,sid){ dragSid=sid; e.dataTransfer.setData('sid',sid); e.dataTransfer.effectAllowed='move'; setTimeout(()=>e.target.classList.add('dragging'),0); }
+function chipDragEnd(e){ dragSid=null; e.target.classList.remove('dragging'); }
+function deskDragStart(e,did){
+  const t=turma(); if(!t) return;
+  const d=t.desks.find(d=>d.id==did); if(!d?.sid){ e.preventDefault(); return; }
+  dragSid=d.sid; e.dataTransfer.setData('sid',d.sid); e.dataTransfer.setData('fromDid',did); e.dataTransfer.effectAllowed='move';
+  setTimeout(()=>e.target.style.opacity='.5',0);
+}
+function deskDragEnd(e){ dragSid=null; e.target.style.opacity=''; }
+function dropToDesk(tdid,e){
+  const t=turma(); if(!t) return;
+  const sid=+e.dataTransfer.getData('sid');
+  const fdid=e.dataTransfer.getData('fromDid');
+  const tDesk=t.desks.find(d=>d.id==tdid); if(!tDesk) return;
+  if(fdid){
+    const fDesk=t.desks.find(d=>d.id==fdid); if(!fDesk) return;
+    [tDesk.sid,fDesk.sid]=[fDesk.sid,tDesk.sid];
+    [tDesk.gid,fDesk.gid]=[fDesk.gid,tDesk.gid];
+  } else {
+    const old=t.desks.find(d=>d.sid===sid);
+    if(old){ old.sid=null; old.gid=null; }
+    tDesk.sid=sid;
+  }
+  renderClassroom(); renderSidebar();
+}
+
+// ════ DESK CLICK ════
+function deskClick(did,e){
+  if(mode==='assign'){ openAssignPanel(did,e); return; }
+  if(mode==='group'){ openGroupPanel(did,e); return; }
+}
+function deskDblClick(did,e){
+  const t=turma(); if(!t) return;
+  const d=t.desks.find(d=>d.id==did); if(!d?.sid) return;
+  const st=t.students.find(s=>s.id===d.sid); if(!st) return;
+  const el=document.getElementById('d'+did);
+  const nm=el.querySelector('.desk-name'); if(!nm) return;
+  const inp=document.createElement('input');
+  inp.className='desk-name-inp'; inp.value=st.name;
+  nm.replaceWith(inp); inp.focus(); inp.select();
+  const save=()=>{ const v=inp.value.trim(); if(v) st.name=v; renderClassroom(); renderSidebar(); };
+  inp.onblur=save;
+  inp.onkeydown=ev=>{ if(ev.key==='Enter'){ ev.preventDefault(); save(); } if(ev.key==='Escape') renderClassroom(); };
+}
+
+// ════ ASSIGN PANEL ════
+function openAssignPanel(did,e){
+  assignDeskId=did;
+  const p=document.getElementById('assignPanel');
+  p.style.left=Math.min(e.clientX,window.innerWidth-270)+'px';
+  p.style.top=Math.min(e.clientY+4,window.innerHeight-300)+'px';
+  p.classList.add('open');
+  document.getElementById('assignSearch').value='';
+  renderAssignList();
+  setTimeout(()=>document.getElementById('assignSearch').focus(),50);
+}
+function renderAssignList(){
+  const t=turma(); if(!t) return;
+  const q=document.getElementById('assignSearch').value.toLowerCase();
+  const seated={}; t.desks.forEach(d=>{ if(d.sid) seated[d.sid]=true; });
+  const ss=t.students.filter(s=>s.name.toLowerCase().includes(q)).sort((a,b)=>a.name.localeCompare(b.name,'pt'));
+  document.getElementById('assignList').innerHTML=
+    `<div class="pop-item" style="color:var(--color-text-faint)" onclick="doAssign(null)">— Vazio</div>`+
+    ss.map(s=>`<div class="pop-item${seated[s.id]?' seated':''}" onclick="doAssign(${s.id})">${seated[s.id]?'✓ ':''}${x(s.name)}</div>`).join('');
+}
+function doAssign(sid){
+  const t=turma(); if(!t||!assignDeskId) return;
+  const d=t.desks.find(d=>d.id==assignDeskId); if(!d) return;
+  if(sid){ const od=t.desks.find(d=>d.sid===sid); if(od){ od.sid=null; od.gid=null; } }
+  d.sid=sid||null; if(!sid) d.gid=null;
+  closeAll(); renderClassroom(); renderSidebar();
+}
+
+// ════ GROUP PANEL ════
+function openGroupPanel(did,e){
+  const t=turma(); if(!t) return;
+  const d=t.desks.find(d=>d.id==did); if(!d?.sid){ toast('Atribua um aluno primeiro'); return; }
+  if(!t.groups.length){ toast('Crie um grupo na barra lateral'); return; }
+  const p=document.getElementById('groupPanel');
+  p.style.left=Math.min(e.clientX,window.innerWidth-200)+'px';
+  p.style.top=Math.min(e.clientY+4,window.innerHeight-220)+'px';
+  p.classList.add('open');
+  assignDeskId=did;
+  document.getElementById('groupPanelList').innerHTML=
+    `<div class="pop-item" style="color:var(--color-text-faint)" onclick="doSetGroup(null)">✕ Sem grupo</div><div class="pop-div"></div>`+
+    t.groups.map(g=>{const gc=GC[g.ci];return `<div class="pop-item" onclick="doSetGroup('${g.id}')"><span style="display:inline-block;width:10px;height:10px;border-radius:2px;background:${gc.c};margin-right:6px"></span>${x(g.name)}</div>`;}).join('');
+}
+function doSetGroup(gid){
+  const t=turma(); if(!t||!assignDeskId) return;
+  const d=t.desks.find(d=>d.id==assignDeskId); if(d) d.gid=gid;
+  closeAll(); renderClassroom(); renderSidebar();
+}
+
+// ════ CONTEXT MENU ════
+function openCtx(did,e){
+  ctxDeskId=did;
+  const m=document.getElementById('ctxMenu');
+  m.style.left=Math.min(e.clientX,window.innerWidth-200)+'px';
+  m.style.top=Math.min(e.clientY+2,window.innerHeight-220)+'px';
+  m.classList.add('open');
+  const t=turma(); const d=t?.desks.find(d=>d.id==did);
+  const has=!!d?.sid;
+  document.getElementById('ctxEdit').style.display=has?'':'none';
+  document.getElementById('ctxGroup').style.display=has?'':'none';
+  document.getElementById('ctxClear').style.display=has?'':'none';
+}
+function ctxAssign(){ const el=document.getElementById('d'+ctxDeskId); closeAll(); if(el){ const r=el.getBoundingClientRect(); openAssignPanel(ctxDeskId,{clientX:r.right,clientY:r.top}); }}
+function ctxEdit(){
+  const t=turma(); if(!t||!ctxDeskId) return;
+  const d=t.desks.find(d=>d.id==ctxDeskId);
+  const st=d?.sid?t.students.find(s=>s.id===d.sid):null;
+  if(!st){ closeAll(); return; }
+  const v=prompt('Nome do aluno:',st.name);
+  if(v&&v.trim()) st.name=v.trim();
+  closeAll(); renderClassroom(); renderSidebar();
+}
+function ctxGroup(){
+  const el=document.getElementById('d'+ctxDeskId); closeAll();
+  if(el){ const r=el.getBoundingClientRect(); openGroupPanel(ctxDeskId,{clientX:r.right,clientY:r.top}); }
+}
+function ctxClear(){
+  const t=turma(); if(!t||!ctxDeskId) return;
+  const d=t.desks.find(d=>d.id==ctxDeskId); if(d){ d.sid=null; d.gid=null; }
+  closeAll(); renderClassroom(); renderSidebar();
+}
+function ctxRemove(){
+  const t=turma(); if(!t||!ctxDeskId) return;
+  if(!confirm('Remover esta secretária?')){ closeAll(); return; }
+  t.desks=t.desks.filter(d=>d.id!=ctxDeskId);
+  closeAll(); renderClassroom(); renderSidebar();
+}
+
+function clearDesk(e,did){
+  e.stopPropagation();
+  const t=turma(); if(!t) return;
+  const d=t.desks.find(d=>d.id==did); if(d){ d.sid=null; d.gid=null; }
+  renderClassroom(); renderSidebar();
+}
+
+// ════ MODE ════
+const HINTS={edit:'Arraste alunos para as secretárias | Duplo-clique para editar nome | Botão direito para mais opções',assign:'Clique em qualquer secretária para atribuir um aluno',group:'Clique numa secretária com aluno para definir o grupo'};
+function setMode(m){
+  mode=m;
+  ['edit','assign','group'].forEach(id=>document.getElementById('mode'+id.charAt(0).toUpperCase()+id.slice(1)).classList.toggle('active',id===m));
+  document.getElementById('modeHint').textContent=HINTS[m]||'';
+  renderClassroom();
+}
+
+// ════ AUTO-ASSIGN ════
+function autoAssign(){
+  const t=turma(); if(!t) return;
+  if(!t.students.length){ toast('Adicione alunos primeiro'); return; }
+  const desks=t.desks; const ss=[...t.students];
+  for(let i=ss.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [ss[i],ss[j]]=[ss[j],ss[i]]; }
+  desks.forEach(d=>{ d.sid=null; d.gid=null; });
+  ss.forEach((s,i)=>{ if(desks[i]) desks[i].sid=s.id; });
+  renderClassroom(); renderSidebar();
+  toast(`${Math.min(ss.length,desks.length)} alunos distribuídos aleatoriamente 🔀`);
+}
+function clearAll(){
+  const t=turma(); if(!t) return;
+  if(!confirm('Limpar todas as secretárias?')) return;
+  t.desks.forEach(d=>{ d.sid=null; d.gid=null; });
+  renderClassroom(); renderSidebar(); toast('Secretárias limpas');
+}
+
+// ════ EXPORT / IMPORT ════
+function exportData(){
+  const b=new Blob([JSON.stringify(state,null,2)],{type:'application/json'});
+  const u=URL.createObjectURL(b);
+  const a=document.createElement('a'); a.href=u; a.download='planta-sala.json'; a.click();
+  URL.revokeObjectURL(u); toast('Dados exportados');
+}
+function importData(ev){
+  const f=ev.target.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(!d.turmas||!Array.isArray(d.turmas)) throw new Error('Formato inválido');
+      if(confirm(`Importar ${d.turmas.length} turma(s)? Os dados atuais serão substituídos.`)){
+        state=d; state.activeId=state.turmas[0]?.id||null; render(); toast('Importado com sucesso ✓');
+      }
+    }catch(err){ alert('Erro: '+err.message); }
+    ev.target.value='';
+  };
+  r.readAsText(f);
+}
+
+// ════ PRINT ════
+function printPlan(){
+  const t=turma(); if(!t){ toast('Nenhuma turma selecionada'); return; }
+  window.print();
+}
+
+// ════ TOAST ════
+function toast(msg,ms=2800){
+  const c=document.getElementById('toasts');
+  const el=document.createElement('div'); el.className='toast-msg'; el.textContent=msg;
+  c.appendChild(el); setTimeout(()=>el.remove(),ms);
+}
+
+// ════ CLOSE ALL POPOVERS ════
+function closeAll(){
+  document.getElementById('assignPanel').classList.remove('open');
+  document.getElementById('groupPanel').classList.remove('open');
+  document.getElementById('ctxMenu').classList.remove('open');
+  assignDeskId=null; ctxDeskId=null;
+}
+document.addEventListener('click',e=>{
+  if(!document.getElementById('assignPanel').contains(e.target)&&
+     !document.getElementById('groupPanel').contains(e.target)&&
+     !document.getElementById('ctxMenu').contains(e.target)) closeAll();
+});
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeAll(); });
+
+// ════ ESCAPE ════
+function x(s){ if(!s) return ''; return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// ════ THEME TOGGLE ════
+(function(){
+  const btn=document.getElementById('themeToggle');
+  const html=document.documentElement;
+  let d=matchMedia('(prefers-color-scheme:dark)').matches?'dark':'light';
+  html.setAttribute('data-theme',d);
+  const moonSvg='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
+  const sunSvg='<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>';
+  btn.innerHTML=d==='dark'?sunSvg:moonSvg;
+  btn.addEventListener('click',()=>{
+    d=d==='dark'?'light':'dark';
+    html.setAttribute('data-theme',d);
+    btn.innerHTML=d==='dark'?sunSvg:moonSvg;
+  });
+})();
+
+init();
+</script>
+</body>
+</html>
