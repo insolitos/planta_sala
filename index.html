@@ -200,6 +200,32 @@ body {
 .btn-icon:hover { background: rgba(255,255,255,0.12); color: white; }
 .btn-icon.danger:hover { background: var(--danger); color: white; }
 
+/* Importação de turma */
+.roster-import summary { cursor:pointer; font-size:11px; color:rgba(255,255,255,0.62); letter-spacing:.5px; text-transform:uppercase; font-weight:700; padding:9px 10px; background:rgba(255,255,255,.05); border-radius:var(--radius-sm); }
+.roster-import-body { margin-top:10px; }
+.roster-import-body .form-label { margin-top:8px; }
+.bulk-paste { width:100%; min-height:95px; resize:vertical; padding:9px 10px; background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.1); border-radius:var(--radius-sm); color:var(--sidebar-text); font:12px/1.5 inherit; font-family:inherit; }
+.bulk-paste:focus { outline:none; border-color:var(--accent); }
+.roster-file-row { display:flex; align-items:center; gap:7px; margin-top:7px; }
+#roster-file { position:absolute; width:1px; height:1px; opacity:0; pointer-events:none; }
+.roster-column { flex:1; min-width:0; }
+.roster-check { display:flex; align-items:center; gap:7px; margin-top:9px; color:rgba(255,255,255,.68); font-size:11px; cursor:pointer; }
+.roster-check input { accent-color:var(--accent); }
+.roster-preview { margin-top:9px; padding:8px 9px; border-radius:var(--radius-sm); background:rgba(255,255,255,.05); color:rgba(255,255,255,.68); font-size:11px; line-height:1.5; }
+.roster-preview strong { color:#fff; }
+.import-note { color:rgba(255,255,255,.38); font-size:10px; line-height:1.45; margin-top:7px; }
+.site-footer { flex-shrink:0; padding:9px 12px; text-align:center; color:var(--text-secondary); background:#fff; border-top:1px solid var(--grid-line); font-size:11px; letter-spacing:.35px; }
+.site-footer strong { color:var(--accent-hover); font-weight:700; }
+@media (max-width:760px) {
+  body { height:auto; min-height:100vh; overflow:auto; display:block; }
+  .sidebar { width:100%; min-width:0; height:auto; max-height:55vh; }
+  .main { height:75vh; min-height:520px; }
+  .classroom-wrapper { padding:16px; }
+  .toolbar { padding:8px 12px; }
+  .toolbar-group { flex-wrap:wrap; }
+  .room-name-input { width:150px; }
+}
+
 /* Student list */
 .student-item {
   display: flex;
@@ -906,11 +932,28 @@ body {
         <button class="btn btn-primary" onclick="addStudent()" style="width:auto; padding: 9px 14px;">+</button>
       </div>
 
-      <details style="margin-bottom:14px;">
-        <summary style="cursor:pointer; font-size:11px; color:rgba(255,255,255,0.4); letter-spacing:0.8px; text-transform:uppercase; font-weight:600;">Adicionar vários</summary>
-        <div style="margin-top:8px;">
-          <textarea class="bulk-paste" id="bulk-students" placeholder="Um aluno por linha..."></textarea>
-          <button class="btn btn-secondary" onclick="addBulkStudents()" style="margin-top:6px;">Adicionar Lista</button>
+      <details class="roster-import" style="margin-bottom:14px;">
+        <summary>📥 Importar turma ou lista</summary>
+        <div class="roster-import-body">
+          <label class="form-label" for="roster-class-name">Nome da turma (opcional)</label>
+          <input class="form-input" id="roster-class-name" type="text" placeholder="Ex.: 7.º A" maxlength="80">
+          <label class="form-label" for="bulk-students" style="margin-top:10px">Cola dados do Excel/Sheets ou escolhe um ficheiro</label>
+          <textarea class="bulk-paste" id="bulk-students" oninput="previewRoster()" placeholder="Cola aqui os nomes ou linhas copiadas do Excel…&#10;Ex.: Número | Nome | Turma"></textarea>
+          <div class="roster-file-row">
+            <label class="btn btn-secondary btn-sm" for="roster-file">📂 Escolher CSV/TSV/TXT</label>
+            <input id="roster-file" type="file" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values,text/plain" onchange="readRosterFile(event)">
+            <select class="form-select roster-column" id="roster-column" aria-label="Coluna com nomes" onchange="previewRoster()"><option value="0">Coluna 1</option></select>
+          </div>
+          <label class="roster-check"><input type="checkbox" id="roster-header" onchange="document.getElementById('roster-header').dataset.touched='1';previewRoster()"> A primeira linha contém cabeçalhos</label>
+          <div class="form-label" style="margin-top:8px">O que fazer com a turma atual?</div>
+          <select class="form-select" id="roster-mode">
+            <option value="append">Juntar alunos novos (mantém lugares)</option>
+            <option value="replace">Substituir a lista de alunos</option>
+          </select>
+          <label class="roster-check"><input type="checkbox" id="roster-auto-seat"> Atribuir automaticamente lugares disponíveis</label>
+          <div id="roster-preview" class="roster-preview" aria-live="polite">Cola uma lista para ver a pré-visualização.</div>
+          <button class="btn btn-primary" onclick="importRoster()" style="margin-top:8px">Importar alunos</button>
+          <p class="import-note">Os dados são tratados apenas neste dispositivo. Os duplicados são ignorados.</p>
         </div>
       </details>
 
@@ -1038,6 +1081,7 @@ body {
       <span id="print-footer-text"></span>
     </div>
   </div>
+  <footer class="site-footer"><strong>TIC, Educação e WEB</strong> · Organização da sala de aula</footer>
 </main>
 
 <!-- Assign Modal -->
@@ -1161,16 +1205,130 @@ function addStudent() {
   renderDesks();
 }
 
-function addBulkStudents() {
-  const text = document.getElementById('bulk-students').value;
-  const names = text.split('\n').map(n => n.trim()).filter(n => n);
-  names.forEach(name => {
-    state.students.push({ id: state.nextId++, name, deskId: null, seatIndex: null, groupId: null });
+function parseRoster(text) {
+  const firstLine = (text.split(/\r?\n/, 1)[0] || '');
+  const delimiters = ['\t', ';', ','];
+  const delimiter = delimiters.sort((a, b) => firstLine.split(b).length - firstLine.split(a).length)[0];
+  const rows = [];
+  let row = [], cell = '', quoted = false;
+  for (let i = 0; i < text.length; i++) {
+    const ch = text[i];
+    if (ch === '"' && quoted && text[i + 1] === '"') { cell += '"'; i++; }
+    else if (ch === '"') quoted = !quoted;
+    else if (!quoted && ch === delimiter) { row.push(cell.trim()); cell = ''; }
+    else if (!quoted && (ch === '\n' || ch === '\r')) {
+      if (ch === '\r' && text[i + 1] === '\n') i++;
+      row.push(cell.trim()); if (row.some(Boolean)) rows.push(row);
+      row = []; cell = '';
+    } else cell += ch;
+  }
+  row.push(cell.trim()); if (row.some(Boolean)) rows.push(row);
+  return rows;
+}
+
+function normalizedName(name) {
+  return name.normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim().replace(/\s+/g, ' ').toLocaleLowerCase('pt');
+}
+
+function previewRoster() {
+  const text = document.getElementById('bulk-students').value.trim();
+  const select = document.getElementById('roster-column');
+  const preview = document.getElementById('roster-preview');
+  if (!text) {
+    preview.textContent = 'Cola uma lista para ver a pré-visualização.';
+    select.innerHTML = '<option value="0">Coluna 1</option>';
+    return;
+  }
+  const rows = parseRoster(text);
+  const columnCount = Math.max(1, ...rows.slice(0, 30).map(r => r.length));
+  const first = rows[0] || [];
+  const headerPattern = /^(n(º|o)?|número|numero|nome|nome completo|aluno|aluna|estudante|turma|id)$/i;
+  const guessedHeader = first.some(value => headerPattern.test(value.trim()));
+  const selected = Number(select.value || 0);
+  select.innerHTML = Array.from({length:columnCount}, (_,i) => {
+    const label = guessedHeader && first[i] ? first[i] : 'Coluna ' + (i + 1);
+    return '<option value="' + i + '">' + esc(label) + '</option>';
+  }).join('');
+  let nameColumn = selected;
+  if (select.options[selected]) select.value = String(selected);
+  else select.value = '0';
+  if (guessedHeader && selected === 0) {
+    const detected = first.findIndex(value => /^(nome|nome completo|aluno|aluna|estudante)$/i.test(value.trim()));
+    if (detected >= 0) { nameColumn = detected; select.value = String(detected); }
+  }
+  const hasHeader = document.getElementById('roster-header');
+  if (!hasHeader.dataset.touched) hasHeader.checked = guessedHeader;
+  const dataRows = hasHeader.checked && guessedHeader ? rows.slice(1) : rows;
+  const existing = document.getElementById('roster-mode').value === 'replace'
+    ? new Set() : new Set(state.students.map(s => normalizedName(s.name)));
+  const seen = new Set(existing);
+  const names = [];
+  let duplicates = 0;
+  dataRows.forEach(r => {
+    const name = (r[nameColumn] || '').trim();
+    if (!name) return;
+    const key = normalizedName(name);
+    if (seen.has(key)) { duplicates++; return; }
+    seen.add(key); names.push(name);
   });
-  document.getElementById('bulk-students').value = '';
+  preview.innerHTML = '<strong>' + names.length + '</strong> aluno(s) novo(s)' +
+    (duplicates ? ' · ' + duplicates + ' duplicado(s) ignorado(s)' : '') +
+    (names.length ? '<br>' + names.slice(0, 5).map(esc).join(' · ') + (names.length > 5 ? '…' : '') : '');
+}
+
+function readRosterFile(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    document.getElementById('bulk-students').value = String(reader.result || '').replace(/^\uFEFF/, '');
+    previewRoster();
+  };
+  reader.onerror = () => toast('Não foi possível ler o ficheiro.');
+  reader.readAsText(file, 'UTF-8');
+  event.target.value = '';
+}
+
+function importRoster() {
+  const text = document.getElementById('bulk-students').value.trim();
+  if (!text) { toast('Cola uma lista ou escolhe um ficheiro primeiro.'); return; }
+  const rows = parseRoster(text);
+  const select = document.getElementById('roster-column');
+  const column = Number(select.value || 0);
+  const first = rows[0] || [];
+  const guessedHeader = first.some(value => /^(n(º|o)?|número|numero|nome|nome completo|aluno|aluna|estudante|turma|id)$/i.test(value.trim()));
+  const skipHeader = document.getElementById('roster-header').checked && guessedHeader;
+  const mode = document.getElementById('roster-mode').value;
+  if (mode === 'replace' && state.students.length &&
+      !confirm('Substituir os ' + state.students.length + ' alunos atuais? Os lugares atribuídos a esses alunos serão libertados.')) return;
+  const names = [];
+  const seen = new Set(mode === 'replace' ? [] : state.students.map(s => normalizedName(s.name)));
+  (skipHeader ? rows.slice(1) : rows).forEach(r => {
+    const name = (r[column] || '').trim();
+    if (!name) return;
+    const key = normalizedName(name);
+    if (!seen.has(key)) { seen.add(key); names.push(name); }
+  });
+  if (!names.length) { toast('Não foram encontrados nomes novos na coluna selecionada.'); return; }
+  if (mode === 'replace') {
+    state.desks.forEach(d => { d.students = d.students.map(() => null); });
+    state.students = [];
+  }
+  const added = names.map(name => ({
+    id: state.nextId++, name, deskId: null, seatIndex: null, groupId: null
+  }));
+  state.students.push(...added);
+  const className = document.getElementById('roster-class-name').value.trim();
+  if (className) {
+    document.getElementById('room-name').value = className;
+    state.roomName = className;
+  }
   renderStudents();
   renderDesks();
-  toast(names.length + ' alunos adicionados');
+  if (document.getElementById('roster-auto-seat').checked) autoAssign();
+  document.getElementById('bulk-students').value = '';
+  previewRoster();
+  toast(added.length + ' aluno(s) importado(s)' + (mode === 'replace' ? ' · turma substituída' : ''));
 }
 
 function removeStudent(id) {
