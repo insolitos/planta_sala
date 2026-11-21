@@ -8,7 +8,7 @@
   let dirty = false, busy = false, blocked = false, localBlocked = false, authBusy = false;
   let last = '', timer, localUnsaved = false;
   const el = id => document.getElementById(id);
-  const configured = Boolean(window.PLANTA_CONFIG?.url && window.PLANTA_CONFIG?.publishableKey);
+  const configured = Boolean(window.PLANTA_CONFIG?.url && window.PLANTA_CONFIG?.publishableKey && window.PLANTA_CONFIG?.authReady !== false);
   if (!configured) {
     for (const id of ['account-email','account-code','cloud-consent','send-code','verify-code']) el(id).disabled = true;
   } else if (el('cloud-unavailable')) el('cloud-unavailable').hidden = true;
