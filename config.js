@@ -2,5 +2,6 @@
 window.PLANTA_CONFIG = {
   url: 'https://trtxpjomznvdkeptzjfy.supabase.co',
   publishableKey: 'sb_publishable_mPh2t2RjieZI_WZ-SSrRcg_VJcVu8di',
-  authReady: false // Ativar após configurar SMTP e testar o código de email.
+  authReady: true,
+  testMode: true // Resend restringe os destinatários ao titular da conta.
 };
