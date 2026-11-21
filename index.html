@@ -910,6 +910,36 @@ body {
     <p>Organização de Alunos</p>
   </div>
 
+
+    <details id="account-panel" style="padding:12px 20px;border-bottom:1px solid #555;max-height:55vh;overflow:auto">
+      <summary style="cursor:pointer;font-weight:700">Turmas e conta</summary>
+      <p id="sync-status" role="status" aria-live="polite" style="font-size:12px;margin:10px 0">Sem conta</p>
+      <label for="class-select">Turma ativa</label>
+      <select id="class-select" class="form-select"></select>
+      <button id="new-class" class="btn btn-secondary">Nova turma</button>
+      <button id="delete-class" class="btn btn-secondary">Apagar turma</button>
+      <button id="backup-all" class="btn btn-secondary">Exportar todas as turmas</button>
+      <label>Importar JSON (adiciona turmas)<input id="restore-all" type="file" accept=".json,application/json" style="width:100%"></label>
+      <hr style="margin:12px 0">
+      <div id="account-login">
+        <p id="cloud-unavailable" role="note" style="padding:8px;background:#55432b;font-size:13px">Contas e sincronização ainda indisponíveis. Pode usar as turmas e a gravação local sem registo.</p>
+        <p style="font-size:12px;margin:8px 0">Sem conta, tudo fica neste navegador. Com conta, as turmas da conta são enviadas ao Supabase. Use nomes abreviados ou códigos dos alunos. As turmas locais só são copiadas quando o pedir.</p>
+        <label style="font-size:12px"><input id="cloud-consent" type="checkbox"> Compreendo e pretendo usar a sincronização.</label>
+        <label for="account-email">Email</label><input id="account-email" class="form-input" type="email" required autocomplete="email">
+        <button id="send-code" class="btn btn-secondary">Entrar / criar conta por email</button>
+        <label for="account-code">Código recebido</label><input id="account-code" class="form-input" inputmode="numeric" autocomplete="one-time-code">
+        <button id="verify-code" class="btn btn-primary">Confirmar código</button>
+      </div>
+      <div id="account-actions" hidden>
+        <p id="account-identity" style="overflow-wrap:anywhere"></p>
+        <button id="copy-local" class="btn btn-secondary">Copiar turmas locais para a conta</button>
+        <button id="sync-now" class="btn btn-secondary">Sincronizar agora</button>
+        <button id="load-cloud" class="btn btn-secondary">Carregar versão da nuvem</button>
+        <button id="logout" class="btn btn-secondary">Sair e voltar ao modo local</button>
+        <p style="font-size:12px">A sessão fica apenas na memória desta página. Volte a entrar se recarregar. Exporte alterações por sincronizar antes de sair. Não deixe a conta aberta num dispositivo partilhado.</p>
+      </div>
+    </details>
+
   <div class="sidebar-tabs">
     <button class="sidebar-tab active" data-tab="alunos">Alunos</button>
     <button class="sidebar-tab" data-tab="sala">Sala</button>
@@ -2249,5 +2279,9 @@ document.getElementById('classroom').addEventListener('touchstart', (e) => {
 // ===================== BOOT =====================
 init();
 </script>
+<script src="config.js"></script>
+<script src="persistence.js"></script>
+<script src="account.js"></script>
 </body>
 </html>
+
